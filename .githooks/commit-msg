@@ -1,0 +1,3 @@
+#!/bin/sh
+# Conventional Commits, enforced locally. Installed by `bun install` (prepare).
+exec bun "$(git rev-parse --show-toplevel)/scripts/cli/lint-commits.ts" --file "$1"
