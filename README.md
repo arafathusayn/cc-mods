@@ -22,7 +22,7 @@ A mod reads and changes your session, files and network as you, unsandboxed. Run
 
 | Mod | What it does |
 | --- | --- |
-| [usage-meter](mods/usage-meter) | Shows your plan's 5-hour and weekly usage limits in a small box above the prompt, with the time to each reset; /usage-meter opens a pane with your pace and when you would run out |
+| [usage-meter](mods/usage-meter) | Shows your plan's 5-hour and weekly usage limits in one line above the prompt, with the time to each reset; /usage-meter opens a pane with your pace and when you would run out |
 
 ## Layout
 

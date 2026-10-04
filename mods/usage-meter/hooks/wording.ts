@@ -71,20 +71,17 @@ const entryWidthOf = (entry: MeterEntry): number =>
   entry.percent.length +
   (entry.countdown.length === 0 ? 0 : METER_ENTRY_GAP + entry.countdown.length)
 
-/**
- * Cells the meter takes across: every window on one line, a `│` with a gap on
- * each side between two of them, one cell of padding and one of border on each side.
- */
+/** Cells the meter takes across: every window on one line, a `│` with a gap on each side between two of them. */
 export const meterWidthOf = (entries: readonly MeterEntry[]): number => {
-  let width = 4
+  let width = 0
   for (const [index, entry] of entries.entries()) {
     width += entryWidthOf(entry) + (index === 0 ? 0 : 1 + 2 * METER_WINDOW_GAP)
   }
   return width
 }
 
-/** Rows the meter takes down: its one line and the border's two. */
-export const METER_HEIGHT = 3
+/** Rows the meter takes down: one line. */
+export const METER_HEIGHT = 1
 
 /** The lines the pane draws for one window, under its bar. */
 export type WindowLines = {

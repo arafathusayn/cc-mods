@@ -2,16 +2,14 @@
 
 Your Claude subscription has usage limits: a 5-hour window, a weekly window and, on a Claude
 gateway, a spend limit. Claude Code mentions them only once you are close. `usage-meter` keeps them
-on screen the whole session, in a small box at the right side above the prompt:
+on screen the whole session, as one line at the right side above the prompt:
 
 ```
-┌────────────────────────────────┐
-│ 5H 14% 2h 55m  │  WK 76% 4d 0h │
-└────────────────────────────────┘
+5H 14% 2h 55m  │  WK 76% 4d 0h
 ```
 
 Each entry is a window: how much of it is used, and how long until it resets. The percent turns
-yellow from 50% and red from 75%. The box appears once Claude has replied for the first time in a
+yellow from 50% and red from 75%. The line appears once Claude has replied for the first time in a
 subscription session; a session on an API key has no usage limits, so nothing is drawn.
 
 `/usage-meter` opens a pane with more for each window: a bar drawn to the pane's width, the reset

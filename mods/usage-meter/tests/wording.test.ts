@@ -64,11 +64,11 @@ describe('the meter above the prompt', () => {
     ])
   })
 
-  test('takes every entry, the │ between them, padding and border across, on one line', () => {
+  test('takes every entry and the │ between them across, on one line', () => {
     const fiveHour = 2 + 1 + 3 + 1 + 6
     const weekly = 2 + 1 + 3 + 1 + 5
-    expect(meterWidthOf(entries)).toBe(fiveHour + 2 + 1 + 2 + weekly + 4)
-    expect(METER_HEIGHT).toBe(3)
+    expect(meterWidthOf(entries)).toBe(fiveHour + 2 + 1 + 2 + weekly)
+    expect(METER_HEIGHT).toBe(1)
   })
 
   test('says reset once a window has reset', () => {

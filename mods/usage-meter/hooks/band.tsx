@@ -1,6 +1,6 @@
-// The meter above the prompt: one bordered line at the band's right end, each
-// window's entry beside the next (`5H 14% 2h 55m │ WK 76% 4d 0h`). Pure: drawn
-// from the surface's element table and the Meter's entries.
+// The meter above the prompt: one line at the band's right end, each window's
+// entry beside the next (`5H 14% 2h 55m │ WK 76% 4d 0h`). Pure: drawn from the
+// surface's element table and the Meter's entries.
 import type { Elements, RenderElement, RenderSurface } from 'claude-code'
 
 import type { Meter } from '../types'
@@ -65,7 +65,7 @@ export const meterBand = (ui: Ui, entries: readonly MeterEntry[], beneath: Rende
     <Box flexDirection="column">
       {beneath}
       <Box key="usage-meter-row" flexDirection="row" justifyContent="flex-end">
-        <Box key="usage-meter" flexDirection="row" borderStyle="single" borderDimColor paddingX={1} columnGap={METER_WINDOW_GAP}>
+        <Box key="usage-meter" flexDirection="row" columnGap={METER_WINDOW_GAP}>
           {line}
         </Box>
       </Box>

@@ -77,7 +77,7 @@ describe('the meter above the prompt', () => {
   test('yields to a survey and to a band too narrow or too short for it', async ($, on) => {
     world(on)
     await start($)
-    for (const props of [{ ...BAND, hasSurvey: true }, { ...BAND, bodyColumns: 33 }, { ...BAND, maxRows: 2 }]) {
+    for (const props of [{ ...BAND, hasSurvey: true }, { ...BAND, bodyColumns: 29 }, { ...BAND, maxRows: 0 }]) {
       const band = await $.ui.mount({ plugin: 'usage-meter', surface: 'terminal', component: 'AbovePrompt', props })
       expect(await band.find({ text: '14%' })).toBeUndefined()
     }
