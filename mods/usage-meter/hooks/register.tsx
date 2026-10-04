@@ -3,7 +3,8 @@ import type { EngineInterface, Register, Timer } from 'claude-code'
 
 import { measureMeter, startMeter, tickMeter, togglePane } from './actions'
 import { fitsBand, meterBand, meterEntriesOf } from './band'
-import { attempt, attemptAsync, describeCause, ok } from './kernel/result'
+import { ACCOUNT_USAGE_URL } from './account-usage'
+import { attempt, attemptAsync, describeCause, err, ok } from './kernel/result'
 import { EMPTY_METER } from './meter'
 import { meterPane } from './pane'
 import { failed, type MeterPorts } from './ports'
@@ -14,12 +15,18 @@ import { failed, type MeterPorts } from './ports'
 //
 // The engine pushes the rate-limit figures (`session.measure`, after each turn
 // and whenever a window moves a point), so nothing polls them; a minute tick
-// moves the countdowns while the session sits idle.
+// moves the countdowns while the session sits idle. The weekly windows that
+// count one model alone (Fable's) are in the account's usage only, read at most
+// every five minutes after a reply and every quarter hour while idle.
 
 const TICK_MS = 60_000
 
-/** The Meter the band and the pane draw from. */
-const meterState = atom({ plugin: 'usage-meter', key: 'meter' } as const, EMPTY_METER)
+/**
+ * The Meter the band and the pane draw from. The shape names the Meter's
+ * fields: a reload whose code names another reads the old value as absent and
+ * starts from an empty Meter rather than misread it.
+ */
+const meterState = atom({ plugin: 'usage-meter', key: 'meter' } as const, EMPTY_METER, { shape: 'meter/2' })
 
 const portsOf = ($: EngineInterface): MeterPorts => ({
   readMeter: () => attemptAsync(() => read($, meterState), failed('state.get')),
@@ -28,6 +35,19 @@ const portsOf = ($: EngineInterface): MeterPorts => ({
   rateLimits: async () => {
     const usage = await attemptAsync(() => $.session.usage(), failed('session.usage'))
     return usage.ok ? ok(usage.value.rateLimits) : usage
+  },
+  // The session's credential stays on the host: `authorize` answers a handle,
+  // and the engine sets the header for a first-party host alone.
+  accountUsage: async () => {
+    const authorized = await attemptAsync(() => $.session.authorize(), failed('session.authorize'))
+    if (!authorized.ok) return authorized
+    if (authorized.value === null || authorized.value.kind !== 'bearer') return ok(undefined)
+    const handle = authorized.value.handle
+    const answered = await attemptAsync(() => $.http.fetch(ACCOUNT_USAGE_URL, { auth: handle }), failed('http.fetch'))
+    if (!answered.ok) return answered
+    return answered.value.ok
+      ? ok(answered.value.text)
+      : err(failed('http.fetch')(`the account's usage answered HTTP ${answered.value.status}`))
   },
   loadStored: () => attemptAsync(() => $.store.get('tracks'), failed('store.get')),
   saveStored: stored => attemptAsync(() => $.store.set('tracks', stored), failed('store.set')),

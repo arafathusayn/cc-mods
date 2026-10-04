@@ -25,7 +25,15 @@ export type Track = {
 
 /** Everything the meter draws from. */
 export type Meter = {
+  /** The windows each API response reports (`five_hour`, `seven_day`, a gateway's `spend_limit`). */
   readonly readings: readonly Reading[]
+  /**
+   * The weekly windows that count one model alone (`model-week:Fable`), read
+   * from the account's usage, which the API responses do not carry.
+   */
+  readonly modelReadings: readonly Reading[]
+  /** When the account's usage was last read, in milliseconds since the epoch; 0 for never. */
+  readonly modelsReadAtMs: number
   /** Each window's track, by `kind`. */
   readonly tracks: Readonly<Record<string, Track>>
   /** When the meter last read the clock, in milliseconds since the epoch. */
@@ -34,6 +42,7 @@ export type Meter = {
 
 declare module 'claude-code' {
   interface PluginState {
-    'usage-meter': { meter: Meter }
+    // Shaped: a reload whose code expects another shape reads the old value as absent.
+    'usage-meter': { meter: Shaped<Meter> }
   }
 }

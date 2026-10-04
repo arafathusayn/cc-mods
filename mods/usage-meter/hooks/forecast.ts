@@ -81,8 +81,8 @@ const forecastOf = (reading: Reading, track: Track | undefined, nowMs: number): 
   }
 }
 
-/** Every reported window's forecast, the soonest-hit windows first. */
+/** Every reported window's forecast, the model weeks among them; the soonest-hit windows first. */
 export const forecast = (meter: Meter): readonly Forecast[] =>
-  meter.readings
+  [...meter.readings, ...meter.modelReadings]
     .map(reading => forecastOf(reading, meter.tracks[reading.kind], meter.nowMs))
     .sort((a, b) => a.window.rank - b.window.rank || a.kind.localeCompare(b.kind))

@@ -9,15 +9,28 @@ import type { Meter } from '../types'
 
 const MIN = 60_000
 const T0 = 1_800_000_000_000
-const RESETS_AT = '2027-01-15T08:00:00Z'
+/** A day after T0, so no window has reset yet. */
+const RESETS_AT = '2027-01-16T08:00:00Z'
 
-/** In-memory ports: the Meter, the store, the clock and the pane, with every call's failure switchable. */
+/** The account's usage as the endpoint answers it, with one model week. */
+const accountUsageWith = (percent: number) =>
+  JSON.stringify({
+    limits: [
+      { kind: 'session', group: 'session', percent: 10, resets_at: RESETS_AT, scope: null },
+      { kind: 'weekly_scoped', percent, resets_at: RESETS_AT, scope: { model: { id: null, display_name: 'Fable' } } },
+    ],
+  })
+
+/** In-memory ports: the Meter, the store, the clock, the account's usage and the pane, with every call's failure switchable. */
 const fakePorts = (start: { stored?: unknown; windows?: SessionRateLimit[] } = {}) => {
   const world = {
     meter: EMPTY_METER as Meter,
     stored: start.stored,
     nowMs: T0,
     windows: start.windows ?? [],
+    /** The endpoint's body; undefined for a session with no first-party login. */
+    accountUsage: accountUsageWith(30) as string | undefined,
+    accountUsageReads: 0,
     isPaneOpen: false,
     debug: [] as string[],
     failing: new Set<string>(),
@@ -31,6 +44,7 @@ const fakePorts = (start: { stored?: unknown; windows?: SessionRateLimit[] } = {
     updateMeter: step => call('state.set', () => (world.meter = step(world.meter))),
     now: () => call('clock.now', () => world.nowMs),
     rateLimits: () => call('session.usage', () => world.windows),
+    accountUsage: () => call('http.fetch', () => (world.accountUsageReads += 1, world.accountUsage)),
     loadStored: () => call('store.get', () => world.stored),
     saveStored: (stored: StoredTracks) => call('store.set', () => void (world.stored = stored)),
     registerCommand: () => call('command.register', () => undefined),
@@ -50,13 +64,14 @@ describe('startMeter', () => {
       windows: [{ kind: 'five_hour', percentUsed: 14, resetsAt: RESETS_AT }],
     })
     await startMeter(ports)
-    expect(Object.keys(world.meter.tracks).sort()).toEqual(['five_hour', 'seven_day'])
+    expect(Object.keys(world.meter.tracks).sort()).toEqual(['five_hour', 'model-week:Fable', 'seven_day'])
     expect(world.meter.readings).toEqual([{ kind: 'five_hour', percentUsed: 14, resetsAtMs: Date.parse(RESETS_AT) }])
     expect(world.debug).toEqual([])
   })
 
   test('sets aside stored tracks of another shape, saying why', async () => {
     const { world, ports } = fakePorts({ stored: { version: 0, tracks: {} } })
+    world.accountUsage = undefined
     await startMeter(ports)
     expect(world.meter.tracks).toEqual({})
     expect(world.debug).toEqual(['usage-meter: the stored tracks were set aside: $.version must be one of 1 (got number)'])
@@ -77,6 +92,7 @@ describe('startMeter', () => {
 describe('measureMeter', () => {
   test('takes in the windows and stores the tracks', async () => {
     const { world, ports } = fakePorts()
+    world.accountUsage = undefined
     await measureMeter(ports, [{ kind: 'five_hour', percentUsed: 20 }])
     expect(world.stored).toEqual({ version: 1, tracks: { five_hour: { points: [{ atMs: T0, percent: 20 }] } } })
   })
@@ -107,6 +123,74 @@ describe('tickMeter', () => {
     world.nowMs = T0 + MIN
     await tickMeter(ports)
     expect(world.meter.nowMs).toBe(T0 + MIN)
+  })
+})
+
+describe('the model weeks', () => {
+  const fable = (percentUsed: number) => ({ kind: 'model-week:Fable', percentUsed, resetsAtMs: Date.parse(RESETS_AT) })
+
+  test('are read from the account’s usage when the session starts, and their tracks stored', async () => {
+    const { world, ports } = fakePorts()
+    await startMeter(ports)
+    expect(world.meter.modelReadings).toEqual([fable(30)])
+    expect(world.meter.modelsReadAtMs).toBe(T0)
+    expect(world.stored).toMatchObject({ tracks: { 'model-week:Fable': { points: [{ atMs: T0, percent: 30 }] } } })
+  })
+
+  test('are read once for two triggers in the same moment', async () => {
+    const { world, ports } = fakePorts()
+    await Promise.all([measureMeter(ports, []), tickMeter(ports)])
+    expect(world.accountUsageReads).toBe(1)
+  })
+
+  test('are read again at most every five minutes after a reply', async () => {
+    const { world, ports } = fakePorts()
+    await measureMeter(ports, [])
+    world.accountUsage = accountUsageWith(31)
+    world.nowMs = T0 + 4 * MIN
+    await measureMeter(ports, [])
+    expect([world.accountUsageReads, world.meter.modelReadings]).toEqual([1, [fable(30)]])
+    world.nowMs = T0 + 5 * MIN
+    await measureMeter(ports, [])
+    expect([world.accountUsageReads, world.meter.modelReadings]).toEqual([2, [fable(31)]])
+  })
+
+  test('are read again every quarter hour while the session sits idle', async () => {
+    const { world, ports } = fakePorts()
+    await tickMeter(ports)
+    world.nowMs = T0 + 14 * MIN
+    await tickMeter(ports)
+    expect(world.accountUsageReads).toBe(1)
+    world.nowMs = T0 + 15 * MIN
+    await tickMeter(ports)
+    expect(world.accountUsageReads).toBe(2)
+  })
+
+  test('are none, quietly, for a session with no first-party login', async () => {
+    const { world, ports } = fakePorts()
+    world.accountUsage = undefined
+    await startMeter(ports)
+    expect(world.meter.modelReadings).toEqual([])
+    expect(world.debug).toEqual([])
+  })
+
+  test('stay as they were when a read fails, and the next read waits its turn', async () => {
+    const { world, ports } = fakePorts()
+    await startMeter(ports)
+    world.failing.add('http.fetch')
+    world.nowMs = T0 + 5 * MIN
+    await measureMeter(ports, [])
+    expect(world.meter.modelReadings).toEqual([fable(30)])
+    expect(world.meter.modelsReadAtMs).toBe(T0 + 5 * MIN)
+    expect(world.debug).toEqual(['usage-meter: http.fetch failed: refused'])
+  })
+
+  test('are set aside when the answer has another shape, saying why', async () => {
+    const { world, ports } = fakePorts()
+    world.accountUsage = '{"windows":[]}'
+    await startMeter(ports)
+    expect(world.meter.modelReadings).toEqual([])
+    expect(world.debug).toEqual(["usage-meter: the account's usage was set aside: $.limits must be an array (got undefined)"])
   })
 })
 

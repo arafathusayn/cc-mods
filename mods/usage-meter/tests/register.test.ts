@@ -21,21 +21,40 @@ const BAND: RenderPropsOf['AbovePrompt'] = {
   view: {},
 }
 
+type World = {
+  readonly stored?: Readonly<Record<string, unknown>>
+  /** The band beneath draws the engine's own drawing, as a session's does, instead of a line. */
+  readonly isEngineBand?: boolean
+  /** The account's usage the endpoint answers for a first-party login; absent, the session has none. */
+  readonly accountUsage?: string
+}
+
+/** What reached the endpoint: its URL and the auth handle it carried. */
+type Fetched = { readonly url: string; readonly auth: string | undefined }
+
 /**
  * The engine beneath the plugin: a clock, a store, usage with no windows yet,
- * and a band that draws a line, or the engine's own drawing as a session's does.
+ * a login (or none) and the account's usage, and a band that draws a line.
  */
-const world = (on: On, stored: Readonly<Record<string, unknown>> = {}, isEngineBand = false) => {
+const world = (on: On, { stored = {}, isEngineBand = false, accountUsage }: World = {}) => {
   const clock = mock.clock(on, { now: T0 })
+  const fetched: Fetched[] = []
   mock.store(on, stored)
   on('session.start', (_$, e) => ({ cwd: e.cwd }))
   on('session.measure', (_$, e) => ({ changed: e.changed }))
   on('session.usage', () => ({ value: { startedAt: T0, context: { window: 200_000 }, rateLimits: [] } }))
+  on('session.authorize', () => ({
+    value: accountUsage === undefined ? null : { handle: 'handle-1', kind: 'bearer' as const },
+  }))
+  on('http.fetch', (_$, e) => {
+    fetched.push({ url: e.url, auth: e.init?.auth })
+    return { value: { status: 200, ok: true, headers: {}, text: accountUsage ?? '' } }
+  })
   on('command.register', (_$, e) => ({ value: { command: e.name } }))
   on('ui.render', { component: 'AbovePrompt' }, ($, e) =>
     isEngineBand ? { type: 'engine' as const, ref: 0 } : $.ui.resolve(e).Text({ children: 'beneath' }),
   )
-  return clock
+  return { clock, fetched }
 }
 
 const start = async ($: Engine) => {
@@ -57,8 +76,36 @@ describe('the meter above the prompt', () => {
     }
   })
 
+  test('shows the Fable week the account’s usage reports, asked with the session’s own login', async ($, on) => {
+    const accountUsage = JSON.stringify({
+      limits: [
+        { kind: 'weekly_all', percent: 76, resets_at: WINDOWS[1]?.resetsAt, scope: null },
+        {
+          kind: 'weekly_scoped',
+          percent: 30,
+          resets_at: WINDOWS[1]?.resetsAt,
+          scope: { model: { id: null, display_name: 'Fable' }, surface: null },
+        },
+      ],
+    })
+    const { fetched } = world(on, { accountUsage })
+    await start($)
+    expect(fetched).toEqual([{ url: 'https://api.anthropic.com/api/oauth/usage', auth: 'handle-1' }])
+    for (const surface of SURFACES) {
+      const band = await $.ui.mount({ plugin: 'usage-meter', surface, component: 'AbovePrompt', props: BAND })
+      const texts = (await band.findAll({ type: 'Text' })).map(found => found.text)
+      expect(texts).toEqual(['beneath', '5H', '14%', '2h 55m', '│', 'WK', '76%', '4d 0h', '│', 'Fable', '30%', '4d 0h'])
+    }
+  })
+
+  test('asks nothing of a session with no first-party login', async ($, on) => {
+    const { fetched } = world(on)
+    await start($)
+    expect(fetched).toEqual([])
+  })
+
   test('keeps the engine’s own drawing in a tree the surface accepts', async ($, on) => {
-    world(on, {}, true)
+    world(on, { isEngineBand: true })
     await start($)
     for (const surface of SURFACES) {
       const band = await $.ui.mount({ plugin: 'usage-meter', surface, component: 'AbovePrompt', props: BAND })
@@ -84,7 +131,7 @@ describe('the meter above the prompt', () => {
   })
 
   test('counts down as the minutes pass', async ($, on) => {
-    const clock = world(on)
+    const { clock } = world(on)
     await start($)
     const band = await $.ui.mount({ plugin: 'usage-meter', surface: 'terminal', component: 'AbovePrompt', props: BAND })
     await clock.advance(10 * MIN)
@@ -146,7 +193,7 @@ describe('the stored tracks', () => {
         tracks: { five_hour: { points: [{ atMs: T0 - HOUR, percent: 4 }] } },
       },
     }
-    world(on, stored)
+    world(on, { stored })
     await start($)
     const pane = await $.ui.mount({
       plugin: 'usage-meter',

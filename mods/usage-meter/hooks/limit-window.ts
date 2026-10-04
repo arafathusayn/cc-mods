@@ -20,17 +20,26 @@ export type LimitWindow = {
 const KNOWN: Readonly<Record<string, LimitWindow>> = {
   five_hour: { title: '5-hour limit', badge: '5H', lengthMs: 5 * HOUR_MS, rank: 0 },
   seven_day: { title: 'Weekly limit', badge: 'WK', lengthMs: 7 * DAY_MS, rank: 1 },
-  spend_limit: { title: 'Spend limit', badge: 'SP', lengthMs: 7 * DAY_MS, rank: 2 },
+  spend_limit: { title: 'Spend limit', badge: 'SP', lengthMs: 7 * DAY_MS, rank: 3 },
 }
 
-/** The window a reading's `kind` names; a kind added later gets a week and its own name. */
-export const limitWindowOf = (kind: string): LimitWindow =>
-  (Object.hasOwn(KNOWN, kind) ? KNOWN[kind] : undefined) ?? {
-    title: kind,
-    badge: kind.slice(0, 2).toUpperCase(),
-    lengthMs: 7 * DAY_MS,
-    rank: 3,
+const MODEL_WEEK = 'model-week:'
+
+/** The kind of the weekly window that counts one model alone: `model-week:Fable`. */
+export const modelWeekKind = (model: string): string => `${MODEL_WEEK}${model}`
+
+/**
+ * The window a reading's `kind` names. A model's own week is labelled with the
+ * model's name; a kind added later gets a week and its own name.
+ */
+export const limitWindowOf = (kind: string): LimitWindow => {
+  if (Object.hasOwn(KNOWN, kind)) return KNOWN[kind] as LimitWindow
+  if (kind.startsWith(MODEL_WEEK)) {
+    const model = kind.slice(MODEL_WEEK.length)
+    return { title: `${model} weekly limit`, badge: model, lengthMs: 7 * DAY_MS, rank: 2 }
   }
+  return { title: kind, badge: kind.slice(0, 2).toUpperCase(), lengthMs: 7 * DAY_MS, rank: 4 }
+}
 
 /**
  * The pace is read over at most this share of the window (an hour of the

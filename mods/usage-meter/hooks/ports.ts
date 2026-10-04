@@ -40,6 +40,12 @@ export type MeterPorts = {
   readonly now: () => AsyncResult<number, EngineError>
   /** The windows the latest API response reported. */
   readonly rateLimits: () => AsyncResult<readonly SessionRateLimit[], EngineError>
+  /**
+   * The account's usage as `/usage` reads it, the body undecoded; undefined
+   * when the session has no first-party login to ask with (an API key, a
+   * gateway, another provider). A status other than 2xx is an error.
+   */
+  readonly accountUsage: () => AsyncResult<string | undefined, EngineError>
   /** What the store holds for the tracks, undecoded; undefined when nothing is stored. */
   readonly loadStored: () => AsyncResult<unknown, EngineError>
   readonly saveStored: (stored: StoredTracks) => AsyncResult<void, EngineError>

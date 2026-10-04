@@ -7,7 +7,8 @@ import type { Reading } from '../types'
 import { number, object, optional, refine, string, transform, type DecodeError } from './kernel/decode'
 import { err, ok, partition } from './kernel/result'
 
-const isoTime = transform(string, text => {
+/** An ISO 8601 time, as milliseconds since the epoch. */
+export const isoTime = transform(string, text => {
   const ms = Date.parse(text)
   return Number.isFinite(ms) ? ok(ms) : err('an ISO 8601 time')
 })
