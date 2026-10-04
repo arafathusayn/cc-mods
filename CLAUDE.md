@@ -103,8 +103,14 @@ commit.
 - Rules `claude plugin validate` enforces: write every `$` call in full (`$.ui.open(...)`, never
   `const ui = $.ui`), event names as string literals, no shadowed `on`, only relative imports
   plus `claude-code`, no dynamic `import()`, ES modules only.
+- The validator follows `$` only into functions declared in the hooks module, never across an
+  import: `hooks/register.tsx` alone touches `$`, builds the ports object the use cases take and
+  calls pure views with the element table (ADR-0010; `mods/usage-meter` is the example).
 - State a drawing reads goes in `$.state` (declared in `types/index.d.ts`), not module variables:
   a reload re-runs `register` and resets them.
+- Draw for every surface: no glyph bars sized in cells (the desktop's font draws them wider);
+  keep what `next(e)` answers under a plain Box (the engine refuses its own drawing under a Box
+  with `width`). Mount every drawing in tests on `terminal` and `desktop`.
 - A hook that cannot proceed answers with the engine's own refusal shapes (`{ deny }`, `next(e)`)
   rather than throwing; a throw skips the hook.
 - In tests, the engine's `$` takes an event's input whole (e.g. `$.command.run` needs `origin` and

@@ -23,3 +23,5 @@ decision gets a new record that supersedes the old one, linked both ways
 | [ADR-0007](0007-conventional-commits-enforced.md) | Conventional Commits, enforced by a commit-msg hook and in CI | accepted | 2026-10-05 |
 | [ADR-0008](0008-decision-records-and-history-chain.md) | Decision records in docs/adr and docs/pdr, project history as a kb chain | accepted | 2026-10-05 |
 | [ADR-0009](0009-check-concurrency-from-host-cores.md) | Heavy checks behind a machine gate, CI concurrency from the host's cores | accepted | 2026-10-05 |
+| [ADR-0010](0010-mod-structure-ports-built-in-the-hooks-module.md) | A mod's $ lives in its hooks module, which builds the ports its use cases run on | accepted | 2026-10-05 |
+| [ADR-0011](0011-model-weeks-from-the-account-usage.md) | Model weeks come from the account's usage, asked with the session's own login | accepted | 2026-10-05 |

@@ -16,3 +16,4 @@ each record. One decision per record, append-only, as for the
 |---|---|---|---|---|
 | [PDR-0001](0001-one-catalog-of-mods.md) | cc-mods is one catalog; each mod installs and updates on its own | accepted | 2026-10-05 | 2026-10-05 |
 | [PDR-0002](0002-agpl-license.md) | The repository and every mod are licensed AGPL-3.0-only | accepted | 2026-10-05 | 2026-10-05 |
+| [PDR-0003](0003-usage-meter.md) | usage-meter keeps the plan's usage limits on screen | accepted | 2026-10-05 | 2026-10-05 |

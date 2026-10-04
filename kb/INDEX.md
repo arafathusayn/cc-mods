@@ -4,7 +4,7 @@
 
 | Chain | What it records | Nodes | Head |
 |---|---|---|---|
-| [history](chains/history/) | verified milestones of the repository | 7 | [history/007](chains/history/2026-10-05T0408--007--check-concurrency-auto.md) |
+| [history](chains/history/) | verified milestones of the repository | 8 | [history/008](chains/history/2026-10-05T0445--008--usage-meter.md) |
 
 ## history
 
@@ -17,6 +17,7 @@
 | [005](chains/history/2026-10-05T0346--005--check-gate.md) | 2026-10-05 03:46 | Heavy checks behind a machine gate | ADR-0006 | 5ca25a0 |
 | [006](chains/history/2026-10-05T0357--006--decision-records.md) | 2026-10-05 03:57 | Decision records and the history chain | ADR-0008 | fc64229 |
 | [007](chains/history/2026-10-05T0408--007--check-concurrency-auto.md) | 2026-10-05 04:08 | CI check concurrency from the host's cores | ADR-0009 | c8c04dc |
+| [008](chains/history/2026-10-05T0445--008--usage-meter.md) | 2026-10-05 04:45 | The first mod: usage-meter | PDR-0003, ADR-0010, ADR-0011 | 11c48eb 6a1c90f f069555 eaf0a21 |
 
 ## Graph
 
@@ -35,6 +36,9 @@ flowchart LR
     A6["ADR-0006<br>check gate"]:::blue
     A8["ADR-0008<br>records, chain"]:::blue
     A9["ADR-0009<br>cores-sized CI"]:::blue
+    P3["PDR-0003<br>usage-meter"]:::purple
+    A10["ADR-0010<br>mod structure"]:::blue
+    A11["ADR-0011<br>model weeks"]:::blue
   end
   subgraph history ["history chain"]
     H1["001 bootstrap"]:::green --> H2["002 standards"]:::green
@@ -43,6 +47,7 @@ flowchart LR
     H4 --> H5["005 check gate"]:::green
     H5 --> H6["006 records"]:::green
     H6 --> H7["007 CI cores"]:::green
+    H7 --> H8["008 usage-meter"]:::green
   end
   P1 -.-> H1
   A1 -.-> H1
@@ -56,6 +61,9 @@ flowchart LR
   A8 -.-> H6
   A9 -.-> H7
   A9 -.->|"supersedes"| A6
+  P3 -.-> H8
+  A10 -.-> H8
+  A11 -.-> H8
   classDef green fill:#dcfce7,stroke:#16a34a,color:#14532d
   classDef blue fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
   classDef purple fill:#f3e8ff,stroke:#9333ea,color:#581c87

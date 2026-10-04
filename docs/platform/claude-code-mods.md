@@ -39,13 +39,31 @@ declarations in `mods/types/` are the authority for the installed build.
 - `claude plugin validate <dir>` analyses the module statically and prints the hooks and calls it
   finds. Its rules: `$` calls written in full (no `const ui = $.ui`), event names as string
   literals, no shadowed `on`, relative imports plus `claude-code` only, no dynamic `import()`, ES
-  modules only.
+  modules only. `$` is followed only into functions declared in the hooks module itself, never
+  across an import, so every `$` call lives in that file (ADR-0010).
+- `session.measure` pushes `$.session.usage()`'s figures (context, rate-limit windows, cost) after
+  each main-thread turn and when a rate-limit window moves a whole point; `e.changed` names the
+  units that moved. Its windows are the ones the API's reply headers carry: `five_hour` and
+  `seven_day` (and a gateway's `spend_limit`), not a model's own week.
+- `/usage` reads the account's usage from `GET https://api.anthropic.com/api/oauth/usage` (an
+  internal endpoint): a `limits` list whose `weekly_scoped` entries carry a model's own week. A
+  mod reaches it with `$.http.fetch(url, { auth })` and the handle `$.session.authorize()`
+  answers; the host keeps the credential (ADR-0011).
+- What `next(e)` answers in a render hook may be the engine's own drawing, `{ type: 'engine' }`.
+  The engine refuses it under a Box that sets `width` and draws its own instead.
+- The desktop Code tab draws the `AbovePrompt` band and panes in a proportional font: glyphs
+  sized in cells (`█░` bars) come out wider and wrap; Boxes sized in percent do not. It hosts the
+  engine as an SDK host, so `$.ui.log` lines reach the host as messages rather than the
+  transcript; refusal lines do show. The app bundles its own Claude Code build, which may differ
+  from the installed CLI.
 - `claude plugin test <dir>` runs `*.test.ts` against the engine with `claude-code/testing`; the
   engine's `$` takes an event's input whole (`$.command.run` needs `origin` and `presentation`).
 - On every load the engine writes the build's types to `<mod>/.claude-plugin/types/` and adds a
   root `tsconfig.json` to a mod without one.
 - `claude --plugin-dir <dir>` loads a mod for one session and hot-reloads it on save;
   `claude -p "/<command>" --plugin-dir <dir>` answers a mod's command without a model turn.
+  A session's hot-reload folder watches the files inside it; a symbolic link to a mod elsewhere
+  loads once and is not reloaded on edits there.
 
 ## Marketplaces
 
