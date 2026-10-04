@@ -1,7 +1,8 @@
 // The composition root: the one place adapters meet use cases.
 import { availableParallelism } from 'node:os'
 
-import { describeDecodeError, integer, optional, refine } from '../../kernel/decode'
+import { describeDecodeError, literal, oneOf, optional, refine, string, transform } from '../../kernel/decode'
+import { ok } from '../../kernel/result'
 import { bunFileReader, bunFileWriter } from '../adapters/bun-files'
 import { bunProcessRunner, bunUnitTestRunner, claudeCli, tscTypeChecker } from '../adapters/bun-processes'
 import { PUBLISHER, repositoryLayout } from '../config'
@@ -13,17 +14,24 @@ export const exitWith = (message: string, code = 1): never => {
 }
 
 // Checks run one at a time unless CC_MODS_CHECK_CONCURRENCY says otherwise
-// (CI, a dedicated runner). Decoded once, at the boundary.
+// (CI, a dedicated runner). Decoded once, at the boundary: `auto` is the
+// host's core count; a number is a request that the core count caps.
 const CONCURRENCY_VARIABLE = 'CC_MODS_CHECK_CONCURRENCY'
+const CORES = availableParallelism()
+const POSITIVE_INTEGER = /^[1-9][0-9]*$/
 const decodeConcurrency = optional(
-  refine(integer, n => n >= 1 && n <= availableParallelism(), `an integer from 1 to ${availableParallelism()}`),
+  oneOf(
+    '"auto" or a positive integer',
+    transform(literal('auto'), () => ok(CORES)),
+    transform(refine(string, text => POSITIVE_INTEGER.test(text), 'a positive integer'), text => ok(Number(text))),
+  ),
 )
 
 const checkConcurrency = (): number => {
   const raw = process.env[CONCURRENCY_VARIABLE]
-  const decoded = decodeConcurrency(raw === undefined || raw === '' ? undefined : Number(raw))
+  const decoded = decodeConcurrency(raw === '' ? undefined : raw)
   if (!decoded.ok) return exitWith(`${CONCURRENCY_VARIABLE}: ${describeDecodeError(decoded.error)}`, 2)
-  return decoded.value ?? 1
+  return Math.min(decoded.value ?? 1, CORES)
 }
 
 export const wire = () => {
