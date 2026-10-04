@@ -78,6 +78,9 @@ commit.
 - `.claude-plugin/marketplace.json`: the catalog. `metadata.pluginRoot` is `./mods`, so each
   entry's `source` is the bare folder name. Entries carry `name`, `source`, `description` only;
   `version` lives in the mod's `plugin.json` alone.
+- `README.md`: its mods section (between the `mods:start` and `mods:end` markers: an index and an
+  install guide per mod) is rendered from the catalog by `bun run sync-readme`. Never edit it by
+  hand: change the entry's `description` (and the mod's `plugin.json`), then sync.
 - `kernel/`: the shared kernel (`result.ts`, `decode.ts`, `invariant.ts`). Canonical here;
   mirrored byte for byte into each mod's `hooks/kernel/` (a hooks module may import only from its
   own folder). Edit it here, then `bun run sync-kernel`. Its tests live in `tests/kernel/`.
@@ -98,7 +101,7 @@ commit.
 
 - Load the `plugin-authoring` skill for the API, but write the mod in `mods/<name>/` of this repo,
   not in `~/.claude/dev-mods/`. Start one with `bun run new <name> "<description>"`, which
-  scaffolds it, mirrors the kernel and lists it in the marketplace and the README.
+  scaffolds it, mirrors the kernel, lists it in the marketplace and renders its README guide.
 - Look things up in `mods/types/claude-code/index.d.ts` (grep `'tool.call'`, `Pane: {`, ...).
 - Rules `claude plugin validate` enforces: write every `$` call in full (`$.ui.open(...)`, never
   `const ui = $.ui`), event names as string literals, no shadowed `on`, only relative imports
@@ -120,7 +123,7 @@ commit.
 ## Checking
 
 `bun run check [mod...]` runs, concurrently: the catalog audit (folders, manifests, entries,
-kernel mirrors agree), `claude plugin validate` on the marketplace and `--strict` on each mod,
+kernel mirrors and the README's mods section agree), `claude plugin validate` on the marketplace and `--strict` on each mod,
 each mod's plugin tests, `tsc` over mods and over kernel/scripts/tests, and `bun test`. CI runs
 the same plus the commit lint.
 
