@@ -8,21 +8,32 @@ Mods need Claude Code v2.1.287 or later.
 
 ## Install
 
-```bash
-claude plugin marketplace add arafathusayn/cc-mods
-claude plugin install <mod>@cc-mods
-```
-
-In a running session, run `/reload-plugins` after installing.
-
-A mod reads and changes your session, files and network as you, unsandboxed. Run
-`claude plugin validate mods/<mod>` to list the events it hooks and the calls it makes.
+Each mod below has its own install guide. A mod reads and changes your session, files and network
+as you, unsandboxed: `claude plugin validate` on its folder lists the events it hooks and the calls
+it makes.
 
 ## Mods
 
+<!-- mods:start: rendered from .claude-plugin/marketplace.json by `bun run sync-readme`; edit the catalog, not this -->
+
 | Mod | What it does |
 | --- | --- |
-| [usage-meter](mods/usage-meter) | Shows your plan's 5-hour and weekly usage limits in one line above the prompt, with the time to each reset; /usage-meter opens a pane with your pace and when you would run out |
+| [usage-meter](#usage-meter) | Shows your plan's 5-hour and weekly usage limits in one line above the prompt, with the time to each reset; /usage-meter opens a pane with your pace and when you would run out |
+
+### usage-meter
+
+Shows your plan's 5-hour and weekly usage limits in one line above the prompt, with the time to each reset; /usage-meter opens a pane with your pace and when you would run out.
+
+```bash
+claude plugin marketplace add arafathusayn/cc-mods
+claude plugin install usage-meter@cc-mods
+```
+
+In a session that is already open, run `/reload-plugins`. Update with `claude plugin update usage-meter@cc-mods`;
+remove with `claude plugin uninstall usage-meter@cc-mods`. How it works and how to use it:
+[mods/usage-meter](mods/usage-meter/README.md).
+
+<!-- mods:end -->
 
 ## Layout
 
@@ -54,6 +65,7 @@ claude --plugin-dir mods/my-mod                     # live, hot-reloading sessio
 bun run check                                       # everything CI runs, one check at a time
 bun run sync-types                                  # after upgrading Claude Code
 bun run sync-kernel                                 # after editing kernel/
+bun run sync-readme                                 # after editing a description in the catalog
 ```
 
 Engineering standards and commit conventions are in [CLAUDE.md](CLAUDE.md); decisions and

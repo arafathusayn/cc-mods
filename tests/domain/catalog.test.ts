@@ -5,7 +5,7 @@ import { encodeDocument, readDocument } from '../../scripts/domain/document'
 import { decodeMarketplace, describeMarketplaceError, encodeMarketplace, listMod, type Marketplace } from '../../scripts/domain/marketplace'
 import type { ModDescription } from '../../scripts/domain/mod-description'
 import type { ModName } from '../../scripts/domain/mod-name'
-import { addCatalogRow } from '../../scripts/domain/readme-catalog'
+import { MODS_END, MODS_START, readmeFor, renderModsSection, type ReadmeSource } from '../../scripts/domain/readme-catalog'
 
 const CATALOG = {
   $schema: 'kept-as-read',
@@ -100,18 +100,77 @@ describe('catalog audit', () => {
   })
 })
 
-describe('readme catalog', () => {
-  const README = '# x\n\n## Mods\n\n| Mod | What it does |\n| --- | --- |\n| _none yet_ | |\n\n## Layout\n'
+describe('readme mods section', () => {
+  const README = `# x\n\n## Mods\n\n${MODS_START}\nanything stale\n${MODS_END}\n\n## Layout\n`
+  const sourceOf = (plugins: unknown[]): ReadmeSource => ({
+    marketplace: decode({ ...CATALOG, plugins }),
+    repository: 'owner/repo',
+    modsDirName: 'mods',
+  })
+  const entry = (name: string, description?: string) => ({ name, source: name, ...(description === undefined ? {} : { description }) })
 
-  test('replaces the placeholder and keeps rows sorted and escaped', () => {
-    const first = addCatalogRow(README, mod('zeta', 'a | b'))
-    const second = first.ok ? addCatalogRow(first.value, mod('alpha')) : first
-    expect(second.ok && second.value).toBe(
-      '# x\n\n## Mods\n\n| Mod | What it does |\n| --- | --- |\n| [alpha](mods/alpha) | D |\n| [zeta](mods/zeta) | a \\| b |\n\n## Layout\n',
+  test('renders an index linking to each mod’s install guide, by name, escaped, the rest of the README kept', () => {
+    const rendered = readmeFor(README, sourceOf([entry('zeta', 'a | b'), entry('alpha', 'Shows things')]))
+    expect(rendered.ok && rendered.value).toBe(
+      [
+        '# x',
+        '',
+        '## Mods',
+        '',
+        MODS_START,
+        '',
+        '| Mod | What it does |',
+        '| --- | --- |',
+        '| [alpha](#alpha) | Shows things |',
+        '| [zeta](#zeta) | a \\| b |',
+        '',
+        '### alpha',
+        '',
+        'Shows things.',
+        '',
+        '```bash',
+        'claude plugin marketplace add owner/repo',
+        'claude plugin install alpha@cc-mods',
+        '```',
+        '',
+        'In a session that is already open, run `/reload-plugins`. Update with `claude plugin update alpha@cc-mods`;',
+        'remove with `claude plugin uninstall alpha@cc-mods`. How it works and how to use it:',
+        '[mods/alpha](mods/alpha/README.md).',
+        '',
+        '### zeta',
+        '',
+        'a | b.',
+        '',
+        '```bash',
+        'claude plugin marketplace add owner/repo',
+        'claude plugin install zeta@cc-mods',
+        '```',
+        '',
+        'In a session that is already open, run `/reload-plugins`. Update with `claude plugin update zeta@cc-mods`;',
+        'remove with `claude plugin uninstall zeta@cc-mods`. How it works and how to use it:',
+        '[mods/zeta](mods/zeta/README.md).',
+        '',
+        MODS_END,
+        '',
+        '## Layout',
+        '',
+      ].join('\n'),
     )
   })
 
-  test('refuses a README without the table', () => {
-    expect(addCatalogRow('# x\n', mod('a')).ok).toBe(false)
+  test('renders the same README again from the same catalog', () => {
+    const source = sourceOf([entry('alpha', 'Shows things')])
+    const once = readmeFor(README, source)
+    const twice = once.ok ? readmeFor(once.value, source) : once
+    expect(twice).toEqual(once)
+  })
+
+  test('says so when the catalog lists no mod, and when an entry has no description', () => {
+    expect(renderModsSection(sourceOf([]))).toBe(`${MODS_START}\n\n_No mods yet._\n\n${MODS_END}`)
+    expect(renderModsSection(sourceOf([entry('alpha')]))).toContain('| [alpha](#alpha) | _No description in the catalog._ |')
+  })
+
+  test('refuses a README without the markers', () => {
+    expect(readmeFor('# x\n', sourceOf([])).ok).toBe(false)
   })
 })

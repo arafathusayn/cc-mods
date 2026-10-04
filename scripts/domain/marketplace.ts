@@ -10,6 +10,8 @@ import type { ModName } from './mod-name'
 export type MarketplaceEntry = {
   readonly name: string
   readonly source: string
+  /** One line for people browsing the catalog. */
+  readonly description: string | undefined
   /** Set only when the entry overrides plugin.json, which this repository forbids. */
   readonly version: string | undefined
   readonly document: JsonObject
@@ -32,7 +34,7 @@ const catalogShape = object({
   metadata: optional(object({ pluginRoot: optional(string) })),
   plugins: array(unknown),
 })
-const entryShape = object({ name: string, source: string, version: optional(string) })
+const entryShape = object({ name: string, source: string, description: optional(string), version: optional(string) })
 
 const invalidAt = (path: readonly (string | number)[], expected: string, received: string): DecodeError => ({
   kind: 'decode/invalid',
@@ -58,6 +60,7 @@ export const decodeMarketplace: Decoder<Marketplace> = value => {
     entries.push({
       name: entry.value.name,
       source: entry.value.source,
+      description: entry.value.description,
       version: entry.value.version,
       document: raw as JsonObject,
     })
@@ -96,6 +99,7 @@ export const listMod = (
   const entry: MarketplaceEntry = {
     name: mod.name,
     source,
+    description: mod.description,
     version: undefined,
     document: { name: mod.name, source, description: mod.description },
   }

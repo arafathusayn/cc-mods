@@ -3,11 +3,12 @@
 import { join } from 'node:path'
 
 import { all, err, ok, type AsyncResult, type Result } from '../../kernel/result'
-import type { Layout } from '../config'
+import type { Layout, Publisher } from '../config'
 import { auditCatalog, describeCatalogIssue, type ModSnapshot } from '../domain/catalog-audit'
 import { describeDocumentError, readDocument } from '../domain/document'
 import { decodeMarketplace, type Marketplace } from '../domain/marketplace'
 import { decodePluginManifest } from '../domain/plugin-manifest'
+import { describeReadmeCatalogError, readmeFor } from '../domain/readme-catalog'
 import {
   describeIoError,
   describeProcessError,
@@ -29,6 +30,7 @@ export type CheckRepoDeps = {
   readonly typeChecker: TypeChecker
   readonly unitTests: UnitTestRunner
   readonly layout: Layout
+  readonly publisher: Publisher
   readonly concurrency: number
 }
 
@@ -66,17 +68,30 @@ const snapshotMod = async (reader: FileReader, layout: Layout, folder: string): 
   return ok({ folder, manifest: manifest.value, kernelCopy: kernelCopy.value })
 }
 
+/** What is wrong with the README's mods section, if anything, against the catalog. */
+const readmeIssue = (readme: string, marketplace: Marketplace, deps: CheckRepoDeps): string | undefined => {
+  const expected = readmeFor(readme, {
+    marketplace,
+    repository: deps.publisher.repository.slug,
+    modsDirName: deps.layout.modsDirName,
+  })
+  if (!expected.ok) return describeReadmeCatalogError(expected.error)
+  return expected.value === readme ? undefined : "README.md's mods section differs from the catalog; run bun run sync-readme"
+}
+
 const catalogCheck = (deps: CheckRepoDeps, folders: readonly string[]): Check => ({
-  title: 'catalog: folders, manifests and marketplace entries agree',
+  title: 'catalog: folders, manifests, marketplace entries and README agree',
   run: async () => {
-    const title = 'catalog: folders, manifests and marketplace entries agree'
+    const title = 'catalog: folders, manifests, marketplace entries and README agree'
     const { reader, layout } = deps
-    const [marketplace, kernel, snapshots] = await Promise.all([
+    const [marketplace, readme, kernel, snapshots] = await Promise.all([
       readMarketplace(reader, layout),
+      reader.readText(layout.readme),
       readKernel(reader, layout),
       Promise.all(folders.map(folder => snapshotMod(reader, layout, folder))),
     ])
     if (!marketplace.ok) return { title, isPassed: false, detail: marketplace.error }
+    if (!readme.ok) return { title, isPassed: false, detail: describeIoError(readme.error) }
     if (!kernel.ok) return { title, isPassed: false, detail: describeIoError(kernel.error) }
     const mods = all(snapshots)
     if (!mods.ok) return { title, isPassed: false, detail: mods.error }
@@ -86,11 +101,13 @@ const catalogCheck = (deps: CheckRepoDeps, folders: readonly string[]): Check =>
       modsDir: layout.modsDirName,
       mods: mods.value,
       kernel: kernel.value,
-    })
+    }).map(describeCatalogIssue)
+    const readmeProblem = readmeIssue(readme.value, marketplace.value, deps)
+    if (readmeProblem !== undefined) issues.push(readmeProblem)
     return {
       title,
       isPassed: issues.length === 0,
-      detail: issues.length === 0 ? `${mods.value.length} mod(s) listed` : issues.map(describeCatalogIssue).join('\n'),
+      detail: issues.length === 0 ? `${mods.value.length} mod(s) listed` : issues.join('\n'),
     }
   },
 })

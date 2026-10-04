@@ -10,6 +10,7 @@
     "check": "bun scripts/cli/gated.ts bun scripts/cli/check.ts",
     "sync-types": "bun scripts/cli/sync-types.ts",
     "sync-kernel": "bun scripts/cli/sync-kernel.ts",
+    "sync-readme": "bun scripts/cli/sync-readme.ts",
     "test": "bun scripts/cli/gated.ts bun test ./tests",
     "typecheck": "bun scripts/cli/gated.ts sh -c 'tsc --singleThreaded -p tsconfig.json && tsc --singleThreaded -p mods/tsconfig.json'"
   },

@@ -1,40 +1,77 @@
-// The README's table of mods, kept in step with the marketplace.
+// The README's mods section: an index of every mod and, under it, each mod's
+// install guide. It is rendered from the catalog, between two markers, so it
+// never says what the catalog does not; nothing in it is edited by hand. Pure.
 import { err, ok, type Result } from '../../kernel/result'
-import type { ModDescription } from './mod-description'
-import type { ModName } from './mod-name'
+import type { Marketplace } from './marketplace'
 
-export type ReadmeCatalogError = { readonly kind: 'readme/no-catalog'; readonly header: string }
+export const MODS_START =
+  '<!-- mods:start: rendered from .claude-plugin/marketplace.json by `bun run sync-readme`; edit the catalog, not this -->'
+export const MODS_END = '<!-- mods:end -->'
 
-export const CATALOG_HEADER = '| Mod | What it does |'
-const PLACEHOLDER = '| _none yet_ | |'
+export type ReadmeCatalogError = { readonly kind: 'readme/no-mods-section'; readonly start: string; readonly end: string }
+
+export type ReadmeSource = {
+  readonly marketplace: Marketplace
+  /** `owner/repo`, as `claude plugin marketplace add` takes it. */
+  readonly repository: string
+  /** The folder the mods live in, as links from the README spell it. */
+  readonly modsDirName: string
+}
 
 const escapeCell = (text: string): string => text.replaceAll('\\', '\\\\').replaceAll('|', '\\|')
 
-const rowFor = (name: ModName, description: ModDescription): string =>
-  `| [${name}](mods/${name}) | ${escapeCell(description)} |`
+const NO_DESCRIPTION = '_No description in the catalog._'
 
-/** The README with the mod's row in the catalog table, rows sorted, the placeholder gone. */
-export const addCatalogRow = (
-  readme: string,
-  mod: { readonly name: ModName; readonly description: ModDescription },
-): Result<string, ReadmeCatalogError> => {
-  const lines = readme.split('\n')
-  const header = lines.indexOf(CATALOG_HEADER)
-  if (header === -1) return err({ kind: 'readme/no-catalog', header: CATALOG_HEADER })
+/** A catalog line read as a sentence: a full stop added when it ends without one. */
+const sentenceOf = (line: string): string => (/[.!?_)]$/.test(line) ? line : `${line}.`)
 
-  const first = header + 2 // the header and its delimiter row
-  let end = first
-  while (lines[end]?.startsWith('|')) end += 1
-
-  const linkPrefix = `| [${mod.name}](`
-  const rows = lines
-    .slice(first, end)
-    .filter(row => row !== PLACEHOLDER && !row.startsWith(linkPrefix))
-    .concat(rowFor(mod.name, mod.description))
-    .sort()
-
-  return ok([...lines.slice(0, first), ...rows, ...lines.slice(end)].join('\n'))
+const guideFor = (source: ReadmeSource, name: string, description: string): string => {
+  const plugin = `${name}@${source.marketplace.name}`
+  return [
+    `### ${name}`,
+    '',
+    sentenceOf(description),
+    '',
+    '```bash',
+    `claude plugin marketplace add ${source.repository}`,
+    `claude plugin install ${plugin}`,
+    '```',
+    '',
+    `In a session that is already open, run \`/reload-plugins\`. Update with \`claude plugin update ${plugin}\`;`,
+    `remove with \`claude plugin uninstall ${plugin}\`. How it works and how to use it:`,
+    `[${source.modsDirName}/${name}](${source.modsDirName}/${name}/README.md).`,
+  ].join('\n')
 }
 
+/** The section between the markers, markers included: the index, then a guide per mod, by name. */
+export const renderModsSection = (source: ReadmeSource): string => {
+  const mods = [...source.marketplace.entries]
+    .sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0))
+    .map(entry => ({ name: entry.name, description: entry.description?.trim() || NO_DESCRIPTION }))
+  if (mods.length === 0) return [MODS_START, '', '_No mods yet._', '', MODS_END].join('\n')
+
+  const index = [
+    '| Mod | What it does |',
+    '| --- | --- |',
+    // A kebab-case heading's anchor is the name itself.
+    ...mods.map(mod => `| [${mod.name}](#${mod.name}) | ${escapeCell(mod.description)} |`),
+  ]
+  return [MODS_START, '', ...index, '', mods.map(mod => guideFor(source, mod.name, mod.description)).join('\n\n'), '', MODS_END].join(
+    '\n',
+  )
+}
+
+/** The README with its mods section replaced by `section`; everything outside the markers kept as it is. */
+export const withModsSection = (readme: string, section: string): Result<string, ReadmeCatalogError> => {
+  const start = readme.indexOf(MODS_START)
+  const end = start === -1 ? -1 : readme.indexOf(MODS_END, start)
+  if (start === -1 || end === -1) return err({ kind: 'readme/no-mods-section', start: MODS_START, end: MODS_END })
+  return ok(readme.slice(0, start) + section + readme.slice(end + MODS_END.length))
+}
+
+/** The README as the catalog says it should read. */
+export const readmeFor = (readme: string, source: ReadmeSource): Result<string, ReadmeCatalogError> =>
+  withModsSection(readme, renderModsSection(source))
+
 export const describeReadmeCatalogError = (error: ReadmeCatalogError): string =>
-  `README.md has no catalog table (a "${error.header}" header row)`
+  `README.md has no mods section: put the lines "${error.start}" and "${error.end}" where it goes`

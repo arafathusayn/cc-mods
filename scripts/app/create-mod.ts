@@ -1,4 +1,5 @@
-// Use case: scaffold a mod and publish it in the catalog and the README.
+// Use case: scaffold a mod and publish it in the catalog and the README's
+// mods section, which is rendered from the catalog.
 // Every input is validated and every new document computed before the first
 // write; a failed write undoes the ones before it.
 import { join } from 'node:path'
@@ -10,7 +11,7 @@ import { decodeMarketplace, describeMarketplaceError, encodeMarketplace, listMod
 import { describeModDescriptionError, parseModDescription, type ModDescriptionError } from '../domain/mod-description'
 import { describeModNameError, parseModName, type ModName, type ModNameError } from '../domain/mod-name'
 import { scaffoldMod } from '../domain/mod-scaffold'
-import { addCatalogRow, describeReadmeCatalogError, type ReadmeCatalogError } from '../domain/readme-catalog'
+import { describeReadmeCatalogError, readmeFor, type ReadmeCatalogError } from '../domain/readme-catalog'
 import { describeIoError, type ClaudeCli, type FileReader, type FileWriter, type IoError } from '../ports'
 import { readKernel } from './kernel-files'
 
@@ -67,7 +68,11 @@ const plan = async (deps: CreateModDeps, input: CreateModInput): AsyncResult<Pla
     listMod(catalog, mod),
   )
   if (!marketplace.ok) return marketplace
-  const readme = addCatalogRow(readmeText.value, mod)
+  const readme = readmeFor(readmeText.value, {
+    marketplace: marketplace.value,
+    repository: publisher.repository.slug,
+    modsDirName: layout.modsDirName,
+  })
   if (!readme.ok) return readme
 
   const files = scaffoldMod({
@@ -127,7 +132,7 @@ export const describeCreateModError = (error: CreateModError): string => {
       return describeModNameError(error)
     case 'mod-description/invalid':
       return describeModDescriptionError(error)
-    case 'readme/no-catalog':
+    case 'readme/no-mods-section':
       return describeReadmeCatalogError(error)
     case 'io/failed':
       return describeIoError(error)
