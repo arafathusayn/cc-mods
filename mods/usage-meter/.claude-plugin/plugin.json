@@ -1,0 +1,12 @@
+{
+  "name": "usage-meter",
+  "version": "0.1.0",
+  "description": "Shows your plan's 5-hour and weekly usage limits in a small box above the prompt, with the time to each reset; /usage-meter opens a pane with your pace and when you would run out",
+  "author": {
+    "name": "Arafat Husayn",
+    "url": "https://github.com/arafathusayn"
+  },
+  "repository": "https://github.com/arafathusayn/cc-mods",
+  "license": "AGPL-3.0-only",
+  "types": "./types/index.d.ts"
+}

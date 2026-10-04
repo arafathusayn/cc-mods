@@ -1,0 +1,9 @@
+{
+  "extends": "../tsconfig.json",
+  "include": [
+    "hooks",
+    "tests",
+    "types",
+    "../*/types/**/*.d.ts"
+  ]
+}
