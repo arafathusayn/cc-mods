@@ -5,13 +5,12 @@ gateway, a spend limit. Claude Code mentions them only once you are close. `usag
 on screen the whole session, in a small box at the right side above the prompt:
 
 ```
-┌─────────────────┐
-│ 5H  14%  2h 55m │
-│ WK  76%  4d 0h  │
-└─────────────────┘
+┌────────────────────────────────┐
+│ 5H 14% 2h 55m  │  WK 76% 4d 0h │
+└────────────────────────────────┘
 ```
 
-Each row is a window: how much of it is used, and how long until it resets. The percent turns
+Each entry is a window: how much of it is used, and how long until it resets. The percent turns
 yellow from 50% and red from 75%. The box appears once Claude has replied for the first time in a
 subscription session; a session on an API key has no usage limits, so nothing is drawn.
 

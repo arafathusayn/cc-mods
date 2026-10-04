@@ -34,8 +34,8 @@ export type Tone = 'calm' | 'warm' | 'hot'
 /** Calm while there is room, warm from half, hot from three quarters. */
 export const toneOf = (percent: number): Tone => (percent >= 75 ? 'hot' : percent >= 50 ? 'warm' : 'calm')
 
-/** One window's row in the meter above the prompt: `5H  14%  2h 55m`. */
-export type MeterRow = {
+/** One window's entry in the meter above the prompt: `5H 14% 2h 55m`. */
+export type MeterEntry = {
   readonly kind: string
   readonly badge: string
   readonly percent: string
@@ -46,7 +46,7 @@ export type MeterRow = {
   readonly isStale: boolean
 }
 
-export const meterRowOf = (one: Forecast): MeterRow => {
+export const meterEntryOf = (one: Forecast): MeterEntry => {
   const isStale = one.outlook.kind === 'reset'
   return {
     kind: one.kind,
@@ -58,28 +58,33 @@ export const meterRowOf = (one: Forecast): MeterRow => {
   }
 }
 
-/** The meter's columns: the badges, the percents and the countdowns. */
-export const METER_COLUMN_GAP = 2
+/** Cells between a window's badge, percent and countdown. */
+export const METER_ENTRY_GAP = 1
+
+/** Cells on each side of the `│` between two windows. */
+export const METER_WINDOW_GAP = 2
+
+/** The cells one window takes on the meter's line: `5H 14% 2h 55m`. */
+const entryWidthOf = (entry: MeterEntry): number =>
+  entry.badge.length +
+  METER_ENTRY_GAP +
+  entry.percent.length +
+  (entry.countdown.length === 0 ? 0 : METER_ENTRY_GAP + entry.countdown.length)
 
 /**
- * Cells the meter takes across: its widest entry in each column, the gaps
- * between the columns, one cell of padding and one of border on each side.
+ * Cells the meter takes across: every window on one line, a `│` with a gap on
+ * each side between two of them, one cell of padding and one of border on each side.
  */
-export const meterWidthOf = (rows: readonly MeterRow[]): number => {
-  let badge = 0
-  let percent = 0
-  let countdown = 0
-  for (const row of rows) {
-    badge = Math.max(badge, row.badge.length)
-    percent = Math.max(percent, row.percent.length)
-    countdown = Math.max(countdown, row.countdown.length)
+export const meterWidthOf = (entries: readonly MeterEntry[]): number => {
+  let width = 4
+  for (const [index, entry] of entries.entries()) {
+    width += entryWidthOf(entry) + (index === 0 ? 0 : 1 + 2 * METER_WINDOW_GAP)
   }
-  const gaps = countdown === 0 ? METER_COLUMN_GAP : 2 * METER_COLUMN_GAP
-  return badge + percent + countdown + gaps + 4
+  return width
 }
 
-/** Rows the meter takes down: one a window, and the border's two. */
-export const meterHeightOf = (rows: readonly MeterRow[]): number => rows.length + 2
+/** Rows the meter takes down: its one line and the border's two. */
+export const METER_HEIGHT = 3
 
 /** The lines the pane draws for one window, under its bar. */
 export type WindowLines = {

@@ -49,7 +49,7 @@ describe('the meter above the prompt', () => {
     await start($)
     for (const surface of SURFACES) {
       const band = await $.ui.mount({ plugin: 'usage-meter', surface, component: 'AbovePrompt', props: BAND })
-      for (const text of ['5H', '14%', '2h 55m', 'WK', '76%', '4d 0h', 'beneath']) {
+      for (const text of ['5H', '14%', '2h 55m', '│', 'WK', '76%', '4d 0h', 'beneath']) {
         expect(await band.find({ text })).toBeDefined()
       }
       expect((await band.find({ type: 'Text', text: '76%' }))?.props).toMatchObject({ bold: true, color: 'red' })
@@ -74,10 +74,10 @@ describe('the meter above the prompt', () => {
     expect(await band.find({ text: 'beneath' })).toBeDefined()
   })
 
-  test('yields to a survey and to a band too narrow for it', async ($, on) => {
+  test('yields to a survey and to a band too narrow or too short for it', async ($, on) => {
     world(on)
     await start($)
-    for (const props of [{ ...BAND, hasSurvey: true }, { ...BAND, bodyColumns: 12 }]) {
+    for (const props of [{ ...BAND, hasSurvey: true }, { ...BAND, bodyColumns: 33 }, { ...BAND, maxRows: 2 }]) {
       const band = await $.ui.mount({ plugin: 'usage-meter', surface: 'terminal', component: 'AbovePrompt', props })
       expect(await band.find({ text: '14%' })).toBeUndefined()
     }

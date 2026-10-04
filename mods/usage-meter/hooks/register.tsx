@@ -2,7 +2,7 @@ import { atom, read, update } from 'claude-code'
 import type { EngineInterface, Register, Timer } from 'claude-code'
 
 import { measureMeter, startMeter, tickMeter, togglePane } from './actions'
-import { fitsBand, meterBand, meterRowsOf } from './band'
+import { fitsBand, meterBand, meterEntriesOf } from './band'
 import { attempt, attemptAsync, describeCause, ok } from './kernel/result'
 import { EMPTY_METER } from './meter'
 import { meterPane } from './pane'
@@ -80,9 +80,9 @@ export const register: Register = on => {
 
   on('ui.render', { component: 'AbovePrompt' }, async ($, e, next) => {
     if (e.props.hasSurvey) return next(e)
-    const rows = meterRowsOf(await read($, meterState))
-    if (!fitsBand(rows, e.props)) return next(e)
-    return meterBand($.ui.resolve(e), rows, await next(e))
+    const entries = meterEntriesOf(await read($, meterState))
+    if (!fitsBand(entries, e.props)) return next(e)
+    return meterBand($.ui.resolve(e), entries, await next(e))
   })
 
   on('ui.render', { component: 'Pane', requestId: 'usage-meter' }, async ($, e) =>

@@ -5,8 +5,8 @@ import { EMPTY_METER, observe, tick } from '../hooks/meter'
 import {
   barFillOf,
   durationText,
-  meterHeightOf,
-  meterRowOf,
+  METER_HEIGHT,
+  meterEntryOf,
   meterWidthOf,
   paneRowsFor,
   percentText,
@@ -55,23 +55,25 @@ describe('the meter above the prompt', () => {
     ],
     T0,
   )
-  const rows = forecast(meter).map(meterRowOf)
+  const entries = forecast(meter).map(meterEntryOf)
 
-  test('has a row a window: badge, percent, countdown and tone', () => {
-    expect(rows).toEqual([
+  test('has an entry a window: badge, percent, countdown and tone', () => {
+    expect(entries).toEqual([
       { kind: 'five_hour', badge: '5H', percent: '14%', countdown: '2h 55m', tone: 'calm', isStale: false },
       { kind: 'seven_day', badge: 'WK', percent: '76%', countdown: '4d 0h', tone: 'hot', isStale: false },
     ])
   })
 
-  test('takes its widest entries, two gaps, padding and border across, and a row a window plus the border down', () => {
-    expect(meterWidthOf(rows)).toBe(2 + 3 + 6 + 4 + 4)
-    expect(meterHeightOf(rows)).toBe(4)
+  test('takes every entry, the │ between them, padding and border across, on one line', () => {
+    const fiveHour = 2 + 1 + 3 + 1 + 6
+    const weekly = 2 + 1 + 3 + 1 + 5
+    expect(meterWidthOf(entries)).toBe(fiveHour + 2 + 1 + 2 + weekly + 4)
+    expect(METER_HEIGHT).toBe(3)
   })
 
   test('says reset once a window has reset', () => {
-    const [row] = forecast(tick(meter, T0 + 3 * HOUR)).map(meterRowOf)
-    expect(row).toMatchObject({ countdown: 'reset', isStale: true })
+    const [entry] = forecast(tick(meter, T0 + 3 * HOUR)).map(meterEntryOf)
+    expect(entry).toMatchObject({ countdown: 'reset', isStale: true })
   })
 })
 

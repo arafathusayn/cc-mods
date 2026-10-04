@@ -1,11 +1,19 @@
-// The meter above the prompt: a small bordered table at the band's right end,
-// one row a window (`5H  14%  2h 55m`). Pure: drawn from the surface's element
-// table and the Meter's rows.
+// The meter above the prompt: one bordered line at the band's right end, each
+// window's entry beside the next (`5H 14% 2h 55m │ WK 76% 4d 0h`). Pure: drawn
+// from the surface's element table and the Meter's entries.
 import type { Elements, RenderElement, RenderSurface } from 'claude-code'
 
 import type { Meter } from '../types'
 import { forecast } from './forecast'
-import { METER_COLUMN_GAP, meterHeightOf, meterRowOf, meterWidthOf, type MeterRow, type Tone } from './wording'
+import {
+  METER_ENTRY_GAP,
+  METER_HEIGHT,
+  METER_WINDOW_GAP,
+  meterEntryOf,
+  meterWidthOf,
+  type MeterEntry,
+  type Tone,
+} from './wording'
 
 export type Ui = Pick<Elements[RenderSurface], 'Box' | 'Text'>
 
@@ -15,11 +23,23 @@ const PERCENT_COLOR: Readonly<Record<Tone, { readonly color?: string }>> = {
   hot: { color: 'red' },
 }
 
-export const meterRowsOf = (meter: Meter): readonly MeterRow[] => forecast(meter).map(meterRowOf)
+export const meterEntriesOf = (meter: Meter): readonly MeterEntry[] => forecast(meter).map(meterEntryOf)
 
 /** True when there is a window to show and the band has room for the meter. */
-export const fitsBand = (rows: readonly MeterRow[], band: { readonly bodyColumns: number; readonly maxRows: number }): boolean =>
-  rows.length > 0 && meterWidthOf(rows) <= band.bodyColumns && meterHeightOf(rows) <= band.maxRows
+export const fitsBand = (
+  entries: readonly MeterEntry[],
+  band: { readonly bodyColumns: number; readonly maxRows: number },
+): boolean => entries.length > 0 && meterWidthOf(entries) <= band.bodyColumns && METER_HEIGHT <= band.maxRows
+
+const entryOf = ({ Box, Text }: Ui, entry: MeterEntry): RenderElement => (
+  <Box key={entry.kind} flexDirection="row" columnGap={METER_ENTRY_GAP}>
+    <Text dimColor>{entry.badge}</Text>
+    <Text bold={!entry.isStale} dimColor={entry.isStale} {...PERCENT_COLOR[entry.tone]}>
+      {entry.percent}
+    </Text>
+    {entry.countdown.length > 0 && <Text dimColor>{entry.countdown}</Text>}
+  </Box>
+)
 
 /**
  * The meter at the band's right end, under what the plugins beneath drew.
@@ -29,36 +49,24 @@ export const fitsBand = (rows: readonly MeterRow[], band: { readonly bodyColumns
  * column; the column stretches the meter's row across, and the row pushes the
  * meter to the right end.
  */
-export const meterBand = ({ Box, Text }: Ui, rows: readonly MeterRow[], beneath: RenderElement): RenderElement => {
-  const hasCountdown = rows.some(row => row.countdown.length > 0)
+export const meterBand = (ui: Ui, entries: readonly MeterEntry[], beneath: RenderElement): RenderElement => {
+  const { Box, Text } = ui
+  const line = entries.flatMap((entry, index) =>
+    index === 0
+      ? [entryOf(ui, entry)]
+      : [
+          <Text key={`gap-${entry.kind}`} dimColor>
+            │
+          </Text>,
+          entryOf(ui, entry),
+        ],
+  )
   return (
     <Box flexDirection="column">
       {beneath}
       <Box key="usage-meter-row" flexDirection="row" justifyContent="flex-end">
-        <Box key="usage-meter" flexDirection="row" borderStyle="single" borderDimColor paddingX={1} columnGap={METER_COLUMN_GAP}>
-          <Box key="badge" flexDirection="column">
-            {rows.map(row => (
-              <Text key={row.kind} dimColor>
-                {row.badge}
-              </Text>
-            ))}
-          </Box>
-          <Box key="percent" flexDirection="column" alignItems="flex-end">
-            {rows.map(row => (
-              <Text key={row.kind} bold={!row.isStale} dimColor={row.isStale} {...PERCENT_COLOR[row.tone]}>
-                {row.percent}
-              </Text>
-            ))}
-          </Box>
-          {hasCountdown && (
-            <Box key="countdown" flexDirection="column">
-              {rows.map(row => (
-                <Text key={row.kind} dimColor>
-                  {row.countdown}
-                </Text>
-              ))}
-            </Box>
-          )}
+        <Box key="usage-meter" flexDirection="row" borderStyle="single" borderDimColor paddingX={1} columnGap={METER_WINDOW_GAP}>
+          {line}
         </Box>
       </Box>
     </Box>
