@@ -41,6 +41,11 @@ bun run sync-kernel                                 # after editing kernel/
 bun run sync-readme                                 # after editing a description in the catalog
 ```
 
+`check`, `test` and `typecheck` run one at a time machine-wide and wait while the machine is busy:
+a 1-minute load at or above 60% of the cores, or under 20% memory free. Each wait prints the
+reading and the limit. `CC_MODS_GATE_LOAD_PERCENT=80 bun run check` sets the load limit for one
+run (a whole percentage of the cores; above 100 is allowed).
+
 ## Release
 
 Bump `version` in the mod's `plugin.json` (users receive an update only when it changes), commit,

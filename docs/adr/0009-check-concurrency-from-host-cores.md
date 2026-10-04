@@ -2,7 +2,7 @@
 title: "ADR-0009: Heavy checks behind a machine gate, CI concurrency from the host's cores"
 type: adr
 id: ADR-0009
-status: accepted
+status: superseded
 decided: 2026-10-05
 valid_from: 2026-10-05
 recorded_at: 2026-10-05
@@ -10,7 +10,8 @@ recorded_at: 2026-10-05
 
 # ADR-0009: Heavy checks behind a machine gate, CI concurrency from the host's cores
 
-**Status:** accepted. Supersedes [ADR-0006](0006-heavy-checks-behind-a-machine-gate.md).
+**Status:** superseded by [ADR-0015](0015-gate-load-limit-from-the-environment.md). Supersedes
+[ADR-0006](0006-heavy-checks-behind-a-machine-gate.md).
 
 ## Context
 

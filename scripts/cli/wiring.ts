@@ -6,6 +6,7 @@ import { ok } from '../../kernel/result'
 import { bunFileReader, bunFileWriter } from '../adapters/bun-files'
 import { bunProcessRunner, bunUnitTestRunner, claudeCli, tscTypeChecker } from '../adapters/bun-processes'
 import { PUBLISHER, repositoryLayout } from '../config'
+import { DEFAULT_LOAD_PERCENT } from '../domain/machine-load'
 
 /** Prints to stderr and exits non-zero. */
 export const exitWith = (message: string, code = 1): never => {
@@ -19,13 +20,27 @@ export const exitWith = (message: string, code = 1): never => {
 const CONCURRENCY_VARIABLE = 'CC_MODS_CHECK_CONCURRENCY'
 const CORES = availableParallelism()
 const POSITIVE_INTEGER = /^[1-9][0-9]*$/
+const positiveInteger = transform(refine(string, text => POSITIVE_INTEGER.test(text), 'a positive integer'), text => ok(Number(text)))
 const decodeConcurrency = optional(
   oneOf(
     '"auto" or a positive integer',
     transform(literal('auto'), () => ok(CORES)),
-    transform(refine(string, text => POSITIVE_INTEGER.test(text), 'a positive integer'), text => ok(Number(text))),
+    positiveInteger,
   ),
 )
+
+// The load gate waits while the 1-minute load is at or above this share of the
+// cores, in whole percent; CC_MODS_GATE_LOAD_PERCENT sets it for one run or a
+// machine. Unset or empty, it is DEFAULT_LOAD_PERCENT.
+const LOAD_PERCENT_VARIABLE = 'CC_MODS_GATE_LOAD_PERCENT'
+const decodeLoadPercent = optional(positiveInteger)
+
+export const gateLoadPercent = (): number => {
+  const raw = process.env[LOAD_PERCENT_VARIABLE]
+  const decoded = decodeLoadPercent(raw === '' ? undefined : raw)
+  if (!decoded.ok) return exitWith(`${LOAD_PERCENT_VARIABLE}: ${describeDecodeError(decoded.error)}`, 2)
+  return decoded.value ?? DEFAULT_LOAD_PERCENT
+}
 
 const checkConcurrency = (): number => {
   const raw = process.env[CONCURRENCY_VARIABLE]

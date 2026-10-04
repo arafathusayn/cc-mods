@@ -1,6 +1,6 @@
 // Use case: wait until the machine has room for a heavy check.
 import { err, ok, type AsyncResult } from '../../kernel/result'
-import { describeMachineLoad, hasCapacity, type LoadLimits, type MachineLoad } from '../domain/machine-load'
+import { describeLoadLimits, describeMachineLoad, hasCapacity, type LoadLimits, type MachineLoad } from '../domain/machine-load'
 import type { Clock, LoadProbe } from '../ports'
 
 export type MachineGateDeps = {
@@ -27,7 +27,7 @@ export const waitForCapacity = async (deps: MachineGateDeps): AsyncResult<Machin
 
     const waitedMs = deps.clock.now() - started
     if (waitedMs >= deps.giveUpAfterMs) return err({ kind: 'gate/timed-out', load, waitedMs })
-    deps.onWait(`waiting for room: ${describeMachineLoad(load)}`)
+    deps.onWait(`waiting for room: ${describeMachineLoad(load)} (needs ${describeLoadLimits(deps.limits)})`)
     await deps.clock.sleep(deps.pollMs)
   }
 }

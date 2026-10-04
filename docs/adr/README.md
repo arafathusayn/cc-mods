@@ -22,9 +22,10 @@ decision gets a new record that supersedes the old one, linked both ways
 | [ADR-0006](0006-heavy-checks-behind-a-machine-gate.md) | Heavy checks run one at a time behind a machine gate | superseded by ADR-0009 | 2026-10-05 |
 | [ADR-0007](0007-conventional-commits-enforced.md) | Conventional Commits, enforced by a commit-msg hook and in CI | accepted | 2026-10-05 |
 | [ADR-0008](0008-decision-records-and-history-chain.md) | Decision records in docs/adr and docs/pdr, project history as a kb chain | accepted | 2026-10-05 |
-| [ADR-0009](0009-check-concurrency-from-host-cores.md) | Heavy checks behind a machine gate, CI concurrency from the host's cores | accepted | 2026-10-05 |
+| [ADR-0009](0009-check-concurrency-from-host-cores.md) | Heavy checks behind a machine gate, CI concurrency from the host's cores | superseded by ADR-0015 | 2026-10-05 |
 | [ADR-0010](0010-mod-structure-ports-built-in-the-hooks-module.md) | A mod's $ lives in its hooks module, which builds the ports its use cases run on | accepted | 2026-10-05 |
 | [ADR-0011](0011-model-weeks-from-the-account-usage.md) | Model weeks come from the account's usage, asked with the session's own login | accepted | 2026-10-05 |
 | [ADR-0012](0012-readme-mods-section-rendered-from-the-catalog.md) | The README's mods section is rendered from the catalog | superseded by ADR-0013 | 2026-10-05 |
 | [ADR-0013](0013-readme-for-users-one-guide-per-mod.md) | The README is for users, one install guide per mod; development is in CONTRIBUTING.md | superseded by ADR-0014 | 2026-10-05 |
 | [ADR-0014](0014-readme-guides-fold-update-and-remove.md) | Each mod's README guide leads with install and folds update and remove away | accepted | 2026-10-05 |
+| [ADR-0015](0015-gate-load-limit-from-the-environment.md) | The check gate's load limit is a share of the cores, set by CC_MODS_GATE_LOAD_PERCENT | accepted | 2026-10-05 |

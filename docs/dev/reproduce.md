@@ -35,8 +35,9 @@ the owning account.
    [ADR-0004](../adr/0004-layered-tooling-and-production-standards.md)): `kernel/`,
    `scripts/{domain,app,adapters,cli,support}/`, `scripts/ports.ts`, `scripts/config.ts`, `tests/`,
    and the strict root `tsconfig.json` over `kernel`, `scripts` and `tests`.
-5. **Check gate** ([ADR-0009](../adr/0009-check-concurrency-from-host-cores.md), superseding ADR-0006):
-   `scripts/cli/gated.ts` in front of `check`, `test` and `typecheck`.
+5. **Check gate** ([ADR-0015](../adr/0015-gate-load-limit-from-the-environment.md), superseding
+   ADR-0009 and ADR-0006): `scripts/cli/gated.ts` in front of `check`, `test` and `typecheck`; its
+   load limit from `CC_MODS_GATE_LOAD_PERCENT`, 60 by default.
 6. **Commit rules** ([ADR-0007](../adr/0007-conventional-commits-enforced.md)):
 
    ```bash
@@ -50,7 +51,7 @@ the owning account.
 8. **CI**: `.github/workflows/check.yml`: `actions/checkout@v7` with `fetch-depth: 0`,
    `oven-sh/setup-bun@v2` reading `packageManager`, `bun install --frozen-lockfile`,
    `npm install --global @anthropic-ai/claude-code`, the commit lint, and `bun run check` with
-   `CC_MODS_CHECK_CONCURRENCY: auto` ([ADR-0009](../adr/0009-check-concurrency-from-host-cores.md)).
+   `CC_MODS_CHECK_CONCURRENCY: auto` ([ADR-0015](../adr/0015-gate-load-limit-from-the-environment.md)).
 9. **Knowledge** ([ADR-0008](../adr/0008-decision-records-and-history-chain.md)): `docs/` and `kb/`.
 10. **Verify and publish**:
 

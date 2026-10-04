@@ -18,9 +18,15 @@ export type LoadLimits = {
   readonly minFreeMemoryPercent: number
 }
 
-/** Leaves room for the agents and tools already running: a load of 60% of the cores, 20% memory free. */
-export const loadLimitsFor = (cores: number): LoadLimits => ({
-  maxLoad1: Math.max(1, Math.round(cores * 0.6)),
+/** The share of the cores, in percent, the 1-minute load may reach before a check waits. */
+export const DEFAULT_LOAD_PERCENT = 60
+
+/**
+ * Leaves room for the agents and tools already running: a load of
+ * `loadPercent` of the cores (60% unless set), 20% memory free.
+ */
+export const loadLimitsFor = (cores: number, loadPercent: number = DEFAULT_LOAD_PERCENT): LoadLimits => ({
+  maxLoad1: Math.max(1, Math.round((cores * loadPercent) / 100)),
   minFreeMemoryPercent: 20,
 })
 
@@ -43,3 +49,6 @@ export const parseFreeMemoryPercent = (text: string): Result<number, LoadReading
 
 export const describeMachineLoad = (load: MachineLoad): string =>
   `load ${load.load1.toFixed(2)}, ${load.freeMemoryPercent}% memory free`
+
+export const describeLoadLimits = (limits: LoadLimits): string =>
+  `load under ${limits.maxLoad1}, ${limits.minFreeMemoryPercent}% memory free`

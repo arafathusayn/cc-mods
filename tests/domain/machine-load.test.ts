@@ -27,6 +27,13 @@ describe('machine load', () => {
     expect(loadLimitsFor(1).maxLoad1).toBe(1)
   })
 
+  test('takes the load limit as a share of the cores when one is given, above 100% too', () => {
+    expect(loadLimitsFor(14, 80).maxLoad1).toBe(11)
+    expect(loadLimitsFor(14, 150).maxLoad1).toBe(21)
+    expect(loadLimitsFor(14, 1).maxLoad1).toBe(1)
+    expect(loadLimitsFor(14, 80).minFreeMemoryPercent).toBe(20)
+  })
+
   test('has capacity below the load limit and above the memory floor', () => {
     expect(hasCapacity({ load1: 5.9, freeMemoryPercent: 20 }, LIMITS)).toBe(true)
     expect(hasCapacity({ load1: 6, freeMemoryPercent: 50 }, LIMITS)).toBe(false)
@@ -54,7 +61,8 @@ describe('waitForCapacity', () => {
   test('waits while busy, then opens', async () => {
     const { run, waits } = gate([busy, busy, idle])
     expect(await run()).toEqual({ ok: true, value: { kind: 'gate/open', load: idle } })
-    expect(waits).toEqual(['waiting for room: load 12.00, 40% memory free', 'waiting for room: load 12.00, 40% memory free'])
+    const wait = 'waiting for room: load 12.00, 40% memory free (needs load under 6, 20% memory free)'
+    expect(waits).toEqual([wait, wait])
   })
 
   test('gives up once the deadline passes', async () => {

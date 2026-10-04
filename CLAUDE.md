@@ -42,7 +42,8 @@ Production grade only. When a shortcut and these rules disagree, the rules win.
 - **Heavy checks one at a time, machine-wide.** `tsc`, tests and `claude plugin validate/test` run
   only through `bun scripts/cli/gated.ts <cmd>` (what `bun run check|test|typecheck` do): one
   `lockf` lock (`cc-mods-checks.lock` in the system temp folder), a load gate (waits while the
-  1-minute load is at or above 60% of the cores or free memory is under 20%, gives up after
+  1-minute load is at or above 60% of the cores, or `CC_MODS_GATE_LOAD_PERCENT` percent when set,
+  or free memory is under 20%, gives up after
   30 min with exit 75), one check at a time, `tsc
   --singleThreaded`, `bun test` without `--parallel`. Never run checks in subagents or in the
   background beside another check. Only CI raises `CC_MODS_CHECK_CONCURRENCY`.
