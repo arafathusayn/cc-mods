@@ -40,11 +40,16 @@ export const claudeCli = (runner: ProcessRunner, binary = 'claude'): ClaudeCli =
   runCommand: (command, pluginDir) => runner.run([binary, '-p', `/${command}`, '--plugin-dir', pluginDir]),
 })
 
-/** tsc from the repository's own node_modules: one pinned version, no resolution on every run. */
+/**
+ * tsc from the repository's own node_modules (one pinned version, no resolution
+ * per run), single-threaded: heavy checks take one core on a shared machine.
+ */
 export const tscTypeChecker = (runner: ProcessRunner, root: string): TypeChecker => ({
-  check: tsconfig => runner.run([join(root, 'node_modules', '.bin', 'tsc'), '-p', tsconfig], { cwd: root }),
+  check: tsconfig =>
+    runner.run([join(root, 'node_modules', '.bin', 'tsc'), '--singleThreaded', '-p', tsconfig], { cwd: root }),
 })
 
+/** bun test in one process, files in sequence: no --parallel workers. */
 export const bunUnitTestRunner = (runner: ProcessRunner, root: string): UnitTestRunner => ({
   run: path => runner.run([process.execPath, 'test', path], { cwd: root }),
 })

@@ -2,6 +2,7 @@
 // these interfaces; adapters/ implements them; cli/ wires the two together.
 // Every path is absolute.
 import type { AsyncResult } from '../kernel/result'
+import type { MachineLoad } from './domain/machine-load'
 
 export type IoError = {
   readonly kind: 'io/failed'
@@ -60,7 +61,17 @@ export interface UnitTestRunner {
   run(path: string): AsyncResult<ProcessOutcome, ProcessError>
 }
 
-export const describeIoError = (error: IoError): string =>
+/** How busy the machine is now; undefined where this platform cannot say. */
+export interface LoadProbe {
+  read(): Promise<MachineLoad | undefined>
+}
+
+export interface Clock {
+  now(): number
+  sleep(ms: number): Promise<void>
+}
+
+export const describeIoError =(error: IoError): string =>
   `could not ${error.operation} ${error.path}: ${error.message}`
 
 export const describeProcessError = (error: ProcessError): string =>

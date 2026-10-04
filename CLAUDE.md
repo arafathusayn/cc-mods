@@ -39,6 +39,23 @@ Production grade only. When a shortcut and these rules disagree, the rules win.
 - **Tests.** Every domain rule and use case has unit tests (`tests/`, `bun test`); use cases are
   tested against in-memory fakes of the ports, including the failure and rollback paths. Every
   mod has `tests/*.test.ts` run by `claude plugin test`.
+- **Heavy checks one at a time, machine-wide.** `tsc`, tests and `claude plugin validate/test` run
+  only through `bun scripts/cli/gated.ts <cmd>` (what `bun run check|test|typecheck` do): one
+  `lockf` lock (`cc-mods-checks.lock` in the system temp folder), a load gate (waits while the
+  1-minute load is at or above 60% of the cores or free memory is under 20%, gives up after
+  30 min with exit 75), one check at a time, `tsc
+  --singleThreaded`, `bun test` without `--parallel`. Never run checks in subagents or in the
+  background beside another check. Only CI raises `CC_MODS_CHECK_CONCURRENCY`.
+- **File writes by agents** go through the Write and Edit tools, never heredocs, `sed -i`,
+  `printf >`, or scripted rewrites.
+
+## Knowledge base
+
+`kb/` is the project's knowledge base: its decisions, architecture, rules and milestones as a
+DAG of dated nodes; see `kb/README.md`. Add a node at every sensible checkpoint (a decision, a
+new rule, a verified milestone, a release) and link it to its parents. The repository is
+public: `kb/` holds project knowledge only, never conversation transcripts or quotes, people's
+personal details, account names, machine details, local paths or credentials setup.
 
 ## Commits
 

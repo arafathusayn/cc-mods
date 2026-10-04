@@ -7,11 +7,11 @@
   "scripts": {
     "prepare": "git config core.hooksPath .githooks",
     "new": "bun scripts/cli/new-mod.ts",
-    "check": "bun scripts/cli/check.ts",
+    "check": "bun scripts/cli/gated.ts bun scripts/cli/check.ts",
     "sync-types": "bun scripts/cli/sync-types.ts",
     "sync-kernel": "bun scripts/cli/sync-kernel.ts",
-    "test": "bun test ./tests",
-    "typecheck": "tsc -p tsconfig.json && tsc -p mods/tsconfig.json"
+    "test": "bun scripts/cli/gated.ts bun test ./tests",
+    "typecheck": "bun scripts/cli/gated.ts sh -c 'tsc --singleThreaded -p tsconfig.json && tsc --singleThreaded -p mods/tsconfig.json'"
   },
   "devDependencies": {
     "@types/bun": "1.4.2",

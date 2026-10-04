@@ -42,3 +42,6 @@ jobs:
           fi
           bun scripts/cli/lint-commits.ts --range "$range"
       - run: bun run check
+        env:
+          # A dedicated runner, not a shared developer machine: checks may overlap here.
+          CC_MODS_CHECK_CONCURRENCY: 4
