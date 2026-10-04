@@ -2,7 +2,7 @@
 title: "ADR-0006: Heavy checks run one at a time behind a machine gate"
 type: adr
 id: ADR-0006
-status: accepted
+status: superseded
 decided: 2026-10-05
 valid_from: 2026-10-05
 recorded_at: 2026-10-05
@@ -10,7 +10,8 @@ recorded_at: 2026-10-05
 
 # ADR-0006: Heavy checks run one at a time behind a machine gate
 
-**Status:** accepted. Live since [5ca25a0](https://github.com/arafathusayn/cc-mods/commit/5ca25a0).
+**Status:** superseded by [ADR-0009](0009-check-concurrency-from-host-cores.md). Live since
+[5ca25a0](https://github.com/arafathusayn/cc-mods/commit/5ca25a0).
 
 ## Context
 
