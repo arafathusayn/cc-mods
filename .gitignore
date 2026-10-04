@@ -1,0 +1,6 @@
+node_modules/
+.DS_Store
+
+# Claude Code writes each mod's API types here every time it loads the mod.
+# The shared, committed copy is mods/types/ (bun run sync-types).
+mods/*/.claude-plugin/types/

@@ -1,0 +1,12 @@
+{
+  "name": "cc-mods",
+  "owner": {
+    "name": "Arafat Husayn",
+    "url": "https://github.com/arafathusayn"
+  },
+  "metadata": {
+    "description": "Claude Code mods by Arafat Husayn: panes, bands, commands and tool-call rules written as function hooks.",
+    "pluginRoot": "./mods"
+  },
+  "plugins": []
+}

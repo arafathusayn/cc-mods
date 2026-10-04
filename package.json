@@ -1,0 +1,15 @@
+{
+  "name": "cc-mods",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "new": "bun scripts/new-mod.ts",
+    "check": "bun scripts/check.ts",
+    "sync-types": "bun scripts/sync-types.ts",
+    "typecheck": "tsc -p tsconfig.json && tsc -p mods/tsconfig.json"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.4.2",
+    "typescript": "^7.0.2"
+  }
+}
