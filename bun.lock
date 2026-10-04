@@ -5,8 +5,8 @@
     "": {
       "name": "cc-mods",
       "devDependencies": {
-        "@types/bun": "^1.4.2",
-        "typescript": "^7.0.2",
+        "@types/bun": "1.4.2",
+        "typescript": "7.0.2",
       },
     },
   },

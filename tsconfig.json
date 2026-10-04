@@ -7,8 +7,15 @@
     "types": ["bun"],
     "strict": true,
     "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "verbatimModuleSyntax": true,
     "noEmit": true,
     "skipLibCheck": true
   },
-  "include": ["scripts"]
+  "include": ["kernel", "scripts", "tests"]
 }

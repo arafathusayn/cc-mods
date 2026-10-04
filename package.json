@@ -2,14 +2,18 @@
   "name": "cc-mods",
   "private": true,
   "type": "module",
+  "packageManager": "bun@1.4.2",
   "scripts": {
-    "new": "bun scripts/new-mod.ts",
-    "check": "bun scripts/check.ts",
-    "sync-types": "bun scripts/sync-types.ts",
+    "prepare": "git config core.hooksPath .githooks",
+    "new": "bun scripts/cli/new-mod.ts",
+    "check": "bun scripts/cli/check.ts",
+    "sync-types": "bun scripts/cli/sync-types.ts",
+    "sync-kernel": "bun scripts/cli/sync-kernel.ts",
+    "test": "bun test ./tests",
     "typecheck": "tsc -p tsconfig.json && tsc -p mods/tsconfig.json"
   },
   "devDependencies": {
-    "@types/bun": "^1.4.2",
-    "typescript": "^7.0.2"
+    "@types/bun": "1.4.2",
+    "typescript": "7.0.2"
   }
 }
