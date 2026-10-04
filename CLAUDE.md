@@ -78,10 +78,11 @@ commit.
 - `.claude-plugin/marketplace.json`: the catalog. `metadata.pluginRoot` is `./mods`, so each
   entry's `source` is the bare folder name. Entries carry `name`, `source`, `description` only;
   `version` lives in the mod's `plugin.json` alone.
-- `README.md`: the page for people installing mods. Its mods section (between the `mods:start`
-  and `mods:end` markers: one install guide per mod) is rendered from the catalog by
-  `bun run sync-readme`. Never edit it by hand: change the entry's `description` (and the mod's
-  `plugin.json`), then sync. Material for developers goes in `CONTRIBUTING.md`, not the README.
+- `README.md`: the page for people installing mods. Its mods section (everything under
+  `## Mods` up to the next `## ` heading: one install guide per mod) is rendered from the catalog
+  by `bun run sync-readme`. Never edit it by hand: change the entry's `description` (and the
+  mod's `plugin.json`), then sync. Material for developers goes in `CONTRIBUTING.md`, not the
+  README.
 - `kernel/`: the shared kernel (`result.ts`, `decode.ts`, `invariant.ts`). Canonical here;
   mirrored byte for byte into each mod's `hooks/kernel/` (a hooks module may import only from its
   own folder). Edit it here, then `bun run sync-kernel`. Its tests live in `tests/kernel/`.

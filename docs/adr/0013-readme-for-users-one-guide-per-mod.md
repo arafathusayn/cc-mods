@@ -23,8 +23,9 @@ release steps, which only people working on the mods need.
 
 - The README is the page for people installing mods: what cc-mods is, the Claude Code version it
   needs, the mods, a pointer to `CONTRIBUTING.md`, the license.
-- Its mods section lies between two markers (`<!-- mods:start ... -->`, `<!-- mods:end -->`) and
-  is rendered whole from `.claude-plugin/marketplace.json` (`scripts/domain/readme-catalog.ts`):
+- Its mods section is everything under the `## Mods` heading up to the next level-2 heading
+  outside a code block, with no marker a reader would see, and is rendered whole from
+  `.claude-plugin/marketplace.json` (`scripts/domain/readme-catalog.ts`):
   per mod, by name, a heading linking to the mod's own README, its description once, the exact
   `marketplace add` and `install` commands, and one line for `/reload-plugins`, `update` and
   `uninstall`. No index table: the headings are the index.
