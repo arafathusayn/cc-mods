@@ -124,10 +124,26 @@ describe('the meter above the prompt', () => {
   test('yields to a survey and to a band too narrow or too short for it', async ($, on) => {
     world(on)
     await start($)
-    for (const props of [{ ...BAND, hasSurvey: true }, { ...BAND, bodyColumns: 29 }, { ...BAND, maxRows: 0 }]) {
+    for (const props of [{ ...BAND, hasSurvey: true }, { ...BAND, bodyColumns: 29 }, { ...BAND, maxRows: 1 }]) {
       const band = await $.ui.mount({ plugin: 'usage-meter', surface: 'terminal', component: 'AbovePrompt', props })
       expect(await band.find({ text: '14%' })).toBeUndefined()
     }
+  })
+
+  test('sits one row below the transcript in the terminal, flush on the desktop', async ($, on) => {
+    world(on)
+    await start($)
+    const terminal = await $.ui.mount({ plugin: 'usage-meter', surface: 'terminal', component: 'AbovePrompt', props: BAND })
+    expect((await terminal.find({ key: 'usage-meter-row' }))?.props).toMatchObject({ paddingTop: 1 })
+    const desktop = await $.ui.mount({ plugin: 'usage-meter', surface: 'desktop', component: 'AbovePrompt', props: BAND })
+    expect((await desktop.find({ key: 'usage-meter-row' }))?.props).not.toHaveProperty('paddingTop')
+    const short = await $.ui.mount({
+      plugin: 'usage-meter',
+      surface: 'desktop',
+      component: 'AbovePrompt',
+      props: { ...BAND, maxRows: 1 },
+    })
+    expect(await short.find({ text: '14%' })).toBeDefined()
   })
 
   test('counts down as the minutes pass', async ($, on) => {

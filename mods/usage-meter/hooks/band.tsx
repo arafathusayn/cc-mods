@@ -23,13 +23,25 @@ const PERCENT_COLOR: Readonly<Record<Tone, { readonly color?: string }>> = {
   hot: { color: 'red' },
 }
 
+/**
+ * Empty rows above the meter, by surface: the terminal draws the band flush
+ * against the transcript, so one row sets the meter apart; the other surfaces
+ * space the band themselves.
+ */
+const TOP_PADDING: Readonly<Record<RenderSurface, number>> = { terminal: 1, desktop: 0, vscode: 0, mobile: 0 }
+
+/** Rows the meter takes on `surface`: its line and the padding above it. */
+export const meterHeightOn = (surface: RenderSurface): number => METER_HEIGHT + TOP_PADDING[surface]
+
 export const meterEntriesOf = (meter: Meter): readonly MeterEntry[] => forecast(meter).map(meterEntryOf)
 
-/** True when there is a window to show and the band has room for the meter. */
+/** True when there is a window to show and the band on `surface` has room for the meter. */
 export const fitsBand = (
   entries: readonly MeterEntry[],
   band: { readonly bodyColumns: number; readonly maxRows: number },
-): boolean => entries.length > 0 && meterWidthOf(entries) <= band.bodyColumns && METER_HEIGHT <= band.maxRows
+  surface: RenderSurface,
+): boolean =>
+  entries.length > 0 && meterWidthOf(entries) <= band.bodyColumns && meterHeightOn(surface) <= band.maxRows
 
 const entryOf = ({ Box, Text }: Ui, entry: MeterEntry): RenderElement => (
   <Box key={entry.kind} flexDirection="row" columnGap={METER_ENTRY_GAP}>
@@ -47,10 +59,16 @@ const entryOf = ({ Box, Text }: Ui, entry: MeterEntry): RenderElement => (
  * What `next(e)` answers may be the engine's own drawing, which the engine
  * refuses under a Box that sizes itself (`width`), so it sits in a plain
  * column; the column stretches the meter's row across, and the row pushes the
- * meter to the right end.
+ * meter to the right end, below the surface's top padding.
  */
-export const meterBand = (ui: Ui, entries: readonly MeterEntry[], beneath: RenderElement): RenderElement => {
+export const meterBand = (
+  ui: Ui,
+  entries: readonly MeterEntry[],
+  beneath: RenderElement,
+  surface: RenderSurface,
+): RenderElement => {
   const { Box, Text } = ui
+  const paddingTop = TOP_PADDING[surface]
   const line = entries.flatMap((entry, index) =>
     index === 0
       ? [entryOf(ui, entry)]
@@ -64,7 +82,7 @@ export const meterBand = (ui: Ui, entries: readonly MeterEntry[], beneath: Rende
   return (
     <Box flexDirection="column">
       {beneath}
-      <Box key="usage-meter-row" flexDirection="row" justifyContent="flex-end">
+      <Box key="usage-meter-row" flexDirection="row" justifyContent="flex-end" {...(paddingTop > 0 ? { paddingTop } : {})}>
         <Box key="usage-meter" flexDirection="row" columnGap={METER_WINDOW_GAP}>
           {line}
         </Box>

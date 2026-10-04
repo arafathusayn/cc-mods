@@ -101,8 +101,8 @@ export const register: Register = on => {
   on('ui.render', { component: 'AbovePrompt' }, async ($, e, next) => {
     if (e.props.hasSurvey) return next(e)
     const entries = meterEntriesOf(await read($, meterState))
-    if (!fitsBand(entries, e.props)) return next(e)
-    return meterBand($.ui.resolve(e), entries, await next(e))
+    if (!fitsBand(entries, e.props, e.surface)) return next(e)
+    return meterBand($.ui.resolve(e), entries, await next(e), e.surface)
   })
 
   on('ui.render', { component: 'Pane', requestId: 'usage-meter' }, async ($, e) =>
