@@ -10,8 +10,6 @@ events it hooks and the calls it makes.
 
 ## Mods
 
-<!-- mods:start: rendered from .claude-plugin/marketplace.json by `bun run sync-readme`; edit the catalog, not this -->
-
 ### [usage-meter](mods/usage-meter/README.md)
 
 Shows your plan's 5-hour and weekly usage limits in one line above the prompt, with the time to each reset; /usage-meter opens a pane with your pace and when you would run out.
@@ -23,8 +21,6 @@ claude plugin install usage-meter@cc-mods
 
 Then `/reload-plugins` in an open session. Update: `claude plugin update usage-meter@cc-mods`.
 Remove: `claude plugin uninstall usage-meter@cc-mods`.
-
-<!-- mods:end -->
 
 ## Contributing
 

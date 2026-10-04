@@ -5,7 +5,7 @@ import { encodeDocument, readDocument } from '../../scripts/domain/document'
 import { decodeMarketplace, describeMarketplaceError, encodeMarketplace, listMod, type Marketplace } from '../../scripts/domain/marketplace'
 import type { ModDescription } from '../../scripts/domain/mod-description'
 import type { ModName } from '../../scripts/domain/mod-name'
-import { MODS_END, MODS_START, readmeFor, renderModsSection, type ReadmeSource } from '../../scripts/domain/readme-catalog'
+import { readmeFor, renderModsSection, type ReadmeSource } from '../../scripts/domain/readme-catalog'
 
 const CATALOG = {
   $schema: 'kept-as-read',
@@ -101,7 +101,7 @@ describe('catalog audit', () => {
 })
 
 describe('readme mods section', () => {
-  const README = `# x\n\n## Mods\n\n${MODS_START}\nanything stale\n${MODS_END}\n\n## Layout\n`
+  const README = '# x\n\n## Mods\n\nanything stale\n\n### old-mod\n\n## Layout\n'
   const sourceOf = (plugins: unknown[]): ReadmeSource => ({
     marketplace: decode({ ...CATALOG, plugins }),
     repository: 'owner/repo',
@@ -116,8 +116,6 @@ describe('readme mods section', () => {
         '# x',
         '',
         '## Mods',
-        '',
-        MODS_START,
         '',
         '### [alpha](mods/alpha/README.md)',
         '',
@@ -143,8 +141,6 @@ describe('readme mods section', () => {
         'Then `/reload-plugins` in an open session. Update: `claude plugin update zeta@cc-mods`.',
         'Remove: `claude plugin uninstall zeta@cc-mods`.',
         '',
-        MODS_END,
-        '',
         '## Layout',
         '',
       ].join('\n'),
@@ -158,12 +154,21 @@ describe('readme mods section', () => {
     expect(twice).toEqual(once)
   })
 
+  test('runs to the end of the README when no heading follows, and past a ## inside a code block', () => {
+    const fenced = '# x\n\n## Mods\n\n```md\n## not a heading\n```\n'
+    expect(readmeFor(fenced, sourceOf([]))).toEqual({ ok: true, value: '# x\n\n## Mods\n\n_No mods yet._\n' })
+  })
+
   test('says so when the catalog lists no mod, and when an entry has no description', () => {
-    expect(renderModsSection(sourceOf([]))).toBe(`${MODS_START}\n\n_No mods yet._\n\n${MODS_END}`)
+    expect(renderModsSection(sourceOf([]))).toBe('## Mods\n\n_No mods yet._')
     expect(renderModsSection(sourceOf([entry('alpha')]))).toContain('\n_No description in the catalog._\n')
   })
 
-  test('refuses a README without the markers', () => {
+  test('never lets a description read as a heading', () => {
+    expect(renderModsSection(sourceOf([entry('alpha', '## Loud')]))).toContain('\n\\## Loud.\n')
+  })
+
+  test('refuses a README without the heading', () => {
     expect(readmeFor('# x\n', sourceOf([])).ok).toBe(false)
   })
 })

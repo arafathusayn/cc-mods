@@ -3,12 +3,11 @@ import { describe, expect, test } from 'bun:test'
 import { err, ok, unit } from '../../kernel/result'
 import { createMod, describeCreateModError } from '../../scripts/app/create-mod'
 import { layoutAt, PUBLISHER } from '../../scripts/config'
-import { MODS_END, MODS_START } from '../../scripts/domain/readme-catalog'
 import type { FileReader, FileWriter, IoError } from '../../scripts/ports'
 
 const layout = layoutAt('/repo')
 
-const README = `# cc-mods\n\n## Mods\n\n${MODS_START}\n\n_No mods yet._\n\n${MODS_END}\n`
+const README = '# cc-mods\n\n## Mods\n\n_No mods yet._\n'
 const CATALOG = '{"name":"cc-mods","owner":{"name":"A"},"metadata":{"pluginRoot":"./mods"},"plugins":[]}\n'
 
 /** An in-memory filesystem: files by absolute path, folders implied by their files. */

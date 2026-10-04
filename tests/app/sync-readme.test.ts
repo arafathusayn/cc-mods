@@ -3,7 +3,6 @@ import { describe, expect, test } from 'bun:test'
 import { err, ok, unit } from '../../kernel/result'
 import { describeSyncReadmeError, syncReadme } from '../../scripts/app/sync-readme'
 import { layoutAt, PUBLISHER } from '../../scripts/config'
-import { MODS_END, MODS_START } from '../../scripts/domain/readme-catalog'
 import type { FileReader, FileWriter } from '../../scripts/ports'
 
 const layout = layoutAt('/repo')
@@ -39,7 +38,7 @@ describe('syncReadme', () => {
   test('renders the mods section from the catalog, then finds it current and writes nothing', async () => {
     const fs = memoryFiles({
       [layout.marketplaceFile]: CATALOG,
-      [layout.readme]: `# cc-mods\n\n${MODS_START}\n${MODS_END}\n\n## Layout\n`,
+      [layout.readme]: '# cc-mods\n\n## Mods\n\nanything stale\n\n## License\n',
     })
     const sync = syncReadme({ ...fs, layout, publisher: PUBLISHER })
 
@@ -47,7 +46,8 @@ describe('syncReadme', () => {
     const readme = fs.files.get(layout.readme) ?? ''
     expect(readme).toContain('### [token-meter](mods/token-meter/README.md)')
     expect(readme).toContain(`claude plugin marketplace add ${PUBLISHER.repository.slug}`)
-    expect(readme).toEndWith(`${MODS_END}\n\n## Layout\n`)
+    expect(readme).toEndWith('Remove: `claude plugin uninstall token-meter@cc-mods`.\n\n## License\n')
+    expect(readme).not.toContain('anything stale')
 
     expect(await sync()).toEqual(ok('current'))
     expect(fs.writes()).toBe(1)
