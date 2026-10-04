@@ -4,6 +4,7 @@ import { forecast } from '../hooks/forecast'
 import { EMPTY_METER, observe, tick } from '../hooks/meter'
 import {
   barFillOf,
+  clockText,
   durationText,
   METER_HEIGHT,
   meterEntryOf,
@@ -24,6 +25,19 @@ describe('durationText', () => {
     expect(durationText(2 * HOUR + 55 * MIN)).toBe('2h 55m')
     expect(durationText(4 * 24 * HOUR)).toBe('4d 0h')
     expect(durationText(-5 * MIN)).toBe('0m')
+  })
+})
+
+describe('clockText', () => {
+  test('reads to the nearest minute, so a reset a second early still reads on the hour', () => {
+    const now = new Date(2027, 0, 15, 6, 0).getTime()
+    expect(clockText(new Date(2027, 0, 15, 10, 59, 59, 660).getTime(), now)).toBe('11:00')
+    expect(clockText(new Date(2027, 0, 15, 11, 0, 0, 36).getTime(), now)).toBe('11:00')
+  })
+
+  test('names the day once the time is most of a day away', () => {
+    const now = new Date(2027, 0, 15, 6, 0).getTime()
+    expect(clockText(new Date(2027, 0, 17, 2, 0).getTime(), now)).toBe('Sun 02:00')
   })
 })
 

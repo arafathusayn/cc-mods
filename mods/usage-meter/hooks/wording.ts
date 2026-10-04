@@ -19,9 +19,12 @@ export const durationText = (ms: number): string => {
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as const
 
-/** `15:30` in local time, or `Sun 02:00` when it is most of a day or more from `nowMs`. */
+/**
+ * `15:30` in local time, or `Sun 02:00` when it is most of a day or more from
+ * `nowMs`; to the nearest minute, as reset times jitter by a second either way.
+ */
 export const clockText = (atMs: number, nowMs: number): string => {
-  const at = new Date(atMs)
+  const at = new Date(Math.round(atMs / MINUTE_MS) * MINUTE_MS)
   const time = `${String(at.getHours()).padStart(2, '0')}:${String(at.getMinutes()).padStart(2, '0')}`
   return Math.abs(atMs - nowMs) < DAY_MS - HOUR_MS ? time : `${WEEKDAYS[at.getDay()]} ${time}`
 }
