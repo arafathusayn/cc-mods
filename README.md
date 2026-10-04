@@ -1,12 +1,12 @@
 # cc-mods
 
-A [Claude Code plugin marketplace](https://code.claude.com/docs/en/plugins/plugin-marketplaces) of
-[mods](https://code.claude.com/docs/en/plugins/mods/overview): panes, bands above the prompt,
-slash commands and tool-call rules, written as TypeScript function hooks that run inside Claude Code.
+**Tune Claude Code from the inside.** Live meters above the prompt, panes beside the chat, new
+slash commands: each installs in two commands and runs right inside your session.
 
-Mods need Claude Code v2.1.287 or later. A mod reads and changes your session, files and network
-as you, unsandboxed: `claude plugin validate` on its folder lists the events it hooks and the calls
-it makes.
+[Mods](https://code.claude.com/docs/en/plugins/mods/overview) are Claude Code plugins that hook
+into the session itself; they need Claude Code v2.1.287 or later. A mod reads and changes your
+session, files and network as you, unsandboxed: `claude plugin validate` on its folder lists the
+events it hooks and the calls it makes.
 
 ## Mods
 
