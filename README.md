@@ -41,6 +41,8 @@ mods/
     tests/*.test.ts               claude plugin test
 scripts/                          domain/ app/ ports.ts adapters/ cli/: repository tooling
 tests/                            bun test: kernel and scripts
+docs/                             adr/ and pdr/ decision records, platform notes, dev guides
+kb/                               the project's history: dated milestone chains and their DAG
 ```
 
 ## Develop
@@ -49,12 +51,13 @@ tests/                            bun test: kernel and scripts
 bun install                                         # also installs the commit-msg hook
 bun run new my-mod "One line about what it does"   # scaffold, list in marketplace and README
 claude --plugin-dir mods/my-mod                     # live, hot-reloading session
-bun run check                                       # everything CI runs, concurrently
+bun run check                                       # everything CI runs, one check at a time
 bun run sync-types                                  # after upgrading Claude Code
 bun run sync-kernel                                 # after editing kernel/
 ```
 
-Engineering standards and commit conventions are in [CLAUDE.md](CLAUDE.md).
+Engineering standards and commit conventions are in [CLAUDE.md](CLAUDE.md); decisions and
+their reasons are in [docs/](docs/README.md).
 
 ## Release
 

@@ -49,13 +49,21 @@ Production grade only. When a shortcut and these rules disagree, the rules win.
 - **File writes by agents** go through the Write and Edit tools, never heredocs, `sed -i`,
   `printf >`, or scripted rewrites.
 
-## Knowledge base
+## Decision records and history
 
-`kb/` is the project's knowledge base: its decisions, architecture, rules and milestones as a
-DAG of dated nodes; see `kb/README.md`. Add a node at every sensible checkpoint (a decision, a
-new rule, a verified milestone, a release) and link it to its parents. The repository is
-public: `kb/` holds project knowledge only, never conversation transcripts or quotes, people's
-personal details, account names, machine details, local paths or credentials setup.
+Start at `docs/README.md` (ADR-0008 has the rules).
+
+- A new architecture decision gets a record in `docs/adr/`, a product decision one in
+  `docs/pdr/`: one decision per record, `NNNN-short-slug.md`, front matter `title`, `type`, `id`,
+  `status`, `decided`, `valid_from`, `recorded_at`; add it to that folder's README index. An
+  accepted record is never edited; a changed decision gets a new record that supersedes it.
+- Living pages (`docs/platform/`, `docs/dev/`) are edited in place with `recorded_at` bumped.
+- Every verified milestone (a landed decision, a release, a fix) appends a node to
+  `kb/chains/history/` (`YYYY-MM-DDTHHMM--NNN--slug.md`, parent = previous node, `records` = the
+  ADR/PDR ids it realises) with its evidence, then updates `kb/INDEX.md`.
+- Everything tracked is written to be publishable: project knowledge only, never conversation
+  transcripts or quotes, speculation about plans, personal details, account names, machine
+  details, local paths or credential setup. Code and tests use neutral sample values.
 
 ## Commits
 
