@@ -109,8 +109,8 @@ describe('readme mods section', () => {
   })
   const entry = (name: string, description?: string) => ({ name, source: name, ...(description === undefined ? {} : { description }) })
 
-  test('renders an index linking to each mod’s install guide, by name, escaped, the rest of the README kept', () => {
-    const rendered = readmeFor(README, sourceOf([entry('zeta', 'a | b'), entry('alpha', 'Shows things')]))
+  test('renders one install guide per mod, by name, each description once, the rest of the README kept', () => {
+    const rendered = readmeFor(README, sourceOf([entry('zeta', 'Counts things.'), entry('alpha', 'Shows things')]))
     expect(rendered.ok && rendered.value).toBe(
       [
         '# x',
@@ -119,12 +119,7 @@ describe('readme mods section', () => {
         '',
         MODS_START,
         '',
-        '| Mod | What it does |',
-        '| --- | --- |',
-        '| [alpha](#alpha) | Shows things |',
-        '| [zeta](#zeta) | a \\| b |',
-        '',
-        '### alpha',
+        '### [alpha](mods/alpha/README.md)',
         '',
         'Shows things.',
         '',
@@ -133,22 +128,20 @@ describe('readme mods section', () => {
         'claude plugin install alpha@cc-mods',
         '```',
         '',
-        'In a session that is already open, run `/reload-plugins`. Update with `claude plugin update alpha@cc-mods`;',
-        'remove with `claude plugin uninstall alpha@cc-mods`. How it works and how to use it:',
-        '[mods/alpha](mods/alpha/README.md).',
+        'Then `/reload-plugins` in an open session. Update: `claude plugin update alpha@cc-mods`.',
+        'Remove: `claude plugin uninstall alpha@cc-mods`.',
         '',
-        '### zeta',
+        '### [zeta](mods/zeta/README.md)',
         '',
-        'a | b.',
+        'Counts things.',
         '',
         '```bash',
         'claude plugin marketplace add owner/repo',
         'claude plugin install zeta@cc-mods',
         '```',
         '',
-        'In a session that is already open, run `/reload-plugins`. Update with `claude plugin update zeta@cc-mods`;',
-        'remove with `claude plugin uninstall zeta@cc-mods`. How it works and how to use it:',
-        '[mods/zeta](mods/zeta/README.md).',
+        'Then `/reload-plugins` in an open session. Update: `claude plugin update zeta@cc-mods`.',
+        'Remove: `claude plugin uninstall zeta@cc-mods`.',
         '',
         MODS_END,
         '',
@@ -167,7 +160,7 @@ describe('readme mods section', () => {
 
   test('says so when the catalog lists no mod, and when an entry has no description', () => {
     expect(renderModsSection(sourceOf([]))).toBe(`${MODS_START}\n\n_No mods yet._\n\n${MODS_END}`)
-    expect(renderModsSection(sourceOf([entry('alpha')]))).toContain('| [alpha](#alpha) | _No description in the catalog._ |')
+    expect(renderModsSection(sourceOf([entry('alpha')]))).toContain('\n_No description in the catalog._\n')
   })
 
   test('refuses a README without the markers', () => {

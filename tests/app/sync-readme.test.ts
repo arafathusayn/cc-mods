@@ -45,7 +45,7 @@ describe('syncReadme', () => {
 
     expect(await sync()).toEqual(ok('updated'))
     const readme = fs.files.get(layout.readme) ?? ''
-    expect(readme).toContain('### token-meter')
+    expect(readme).toContain('### [token-meter](mods/token-meter/README.md)')
     expect(readme).toContain(`claude plugin marketplace add ${PUBLISHER.repository.slug}`)
     expect(readme).toEndWith(`${MODS_END}\n\n## Layout\n`)
 
