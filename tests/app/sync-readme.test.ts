@@ -44,9 +44,10 @@ describe('syncReadme', () => {
 
     expect(await sync()).toEqual(ok('updated'))
     const readme = fs.files.get(layout.readme) ?? ''
-    expect(readme).toContain('### [token-meter](mods/token-meter/README.md)')
+    expect(readme).toContain('### token-meter\n')
+    expect(readme).toContain('[Read the token-meter guide](mods/token-meter/README.md)')
     expect(readme).toContain(`claude plugin marketplace add ${PUBLISHER.repository.slug}`)
-    expect(readme).toEndWith('Remove: `claude plugin uninstall token-meter@cc-mods`.\n\n## License\n')
+    expect(readme).toEndWith('claude plugin uninstall token-meter@cc-mods\n```\n\n</details>\n\n## License\n')
     expect(readme).not.toContain('anything stale')
 
     expect(await sync()).toEqual(ok('current'))

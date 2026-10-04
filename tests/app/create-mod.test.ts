@@ -83,7 +83,7 @@ describe('createMod', () => {
     expect(JSON.parse(fs.files.get(layout.marketplaceFile) ?? '').plugins).toEqual([
       { name: 'token-meter', source: 'token-meter', description: 'Shows token use' },
     ])
-    expect(fs.files.get(layout.readme)).toContain('### [token-meter](mods/token-meter/README.md)\n\nShows token use.')
+    expect(fs.files.get(layout.readme)).toContain('### token-meter\n\nShows token use.')
     expect(fs.files.get(layout.readme)).toContain('claude plugin install token-meter@cc-mods')
     expect(fs.files.get('/repo/mods/token-meter/README.md')).toContain('Tested with Claude Code 2.1.289.')
   })

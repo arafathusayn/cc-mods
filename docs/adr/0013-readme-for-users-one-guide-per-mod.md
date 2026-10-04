@@ -2,7 +2,7 @@
 title: "ADR-0013: The README is for users, one install guide per mod; development is in CONTRIBUTING.md"
 type: adr
 id: ADR-0013
-status: accepted
+status: superseded
 decided: 2026-10-05
 valid_from: 2026-10-05
 recorded_at: 2026-10-05
@@ -10,8 +10,8 @@ recorded_at: 2026-10-05
 
 # ADR-0013: The README is for users, one install guide per mod; development is in CONTRIBUTING.md
 
-**Status:** accepted. Supersedes [ADR-0012](0012-readme-mods-section-rendered-from-the-catalog.md).
-Live since [2e2549d](https://github.com/arafathusayn/cc-mods/commit/2e2549d).
+**Status:** superseded by [ADR-0014](0014-readme-guides-fold-update-and-remove.md). Supersedes
+[ADR-0012](0012-readme-mods-section-rendered-from-the-catalog.md). Live since [2e2549d](https://github.com/arafathusayn/cc-mods/commit/2e2549d).
 
 ## Context
 

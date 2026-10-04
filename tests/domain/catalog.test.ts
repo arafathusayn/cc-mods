@@ -117,7 +117,7 @@ describe('readme mods section', () => {
         '',
         '## Mods',
         '',
-        '### [alpha](mods/alpha/README.md)',
+        '### alpha',
         '',
         'Shows things.',
         '',
@@ -126,10 +126,19 @@ describe('readme mods section', () => {
         'claude plugin install alpha@cc-mods',
         '```',
         '',
-        'Then `/reload-plugins` in an open session. Update: `claude plugin update alpha@cc-mods`.',
-        'Remove: `claude plugin uninstall alpha@cc-mods`.',
+        'Then run `/reload-plugins` in any open session. [Read the alpha guide](mods/alpha/README.md).',
         '',
-        '### [zeta](mods/zeta/README.md)',
+        '<details>',
+        '<summary>Update or remove</summary>',
+        '',
+        '```bash',
+        'claude plugin update alpha@cc-mods',
+        'claude plugin uninstall alpha@cc-mods',
+        '```',
+        '',
+        '</details>',
+        '',
+        '### zeta',
         '',
         'Counts things.',
         '',
@@ -138,8 +147,17 @@ describe('readme mods section', () => {
         'claude plugin install zeta@cc-mods',
         '```',
         '',
-        'Then `/reload-plugins` in an open session. Update: `claude plugin update zeta@cc-mods`.',
-        'Remove: `claude plugin uninstall zeta@cc-mods`.',
+        'Then run `/reload-plugins` in any open session. [Read the zeta guide](mods/zeta/README.md).',
+        '',
+        '<details>',
+        '<summary>Update or remove</summary>',
+        '',
+        '```bash',
+        'claude plugin update zeta@cc-mods',
+        'claude plugin uninstall zeta@cc-mods',
+        '```',
+        '',
+        '</details>',
         '',
         '## Layout',
         '',
@@ -166,6 +184,13 @@ describe('readme mods section', () => {
 
   test('never lets a description read as a heading', () => {
     expect(renderModsSection(sourceOf([entry('alpha', '## Loud')]))).toContain('\n\\## Loud.\n')
+  })
+
+  test('sets slash commands as code, and leaves a description that already holds code alone', () => {
+    const section = (description: string) => renderModsSection(sourceOf([entry('alpha', description)]))
+    expect(section('/alpha opens a pane (or /alpha-off), not a/b')).toContain('\n`/alpha` opens a pane (or `/alpha-off`), not a/b.\n')
+    expect(section('Type /alpha.')).toContain('\nType `/alpha`.\n')
+    expect(section('Type `/alpha` or /beta')).toContain('\nType `/alpha` or /beta.\n')
   })
 
   test('refuses a README without the heading', () => {
