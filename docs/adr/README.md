@@ -25,4 +25,5 @@ decision gets a new record that supersedes the old one, linked both ways
 | [ADR-0009](0009-check-concurrency-from-host-cores.md) | Heavy checks behind a machine gate, CI concurrency from the host's cores | accepted | 2026-10-05 |
 | [ADR-0010](0010-mod-structure-ports-built-in-the-hooks-module.md) | A mod's $ lives in its hooks module, which builds the ports its use cases run on | accepted | 2026-10-05 |
 | [ADR-0011](0011-model-weeks-from-the-account-usage.md) | Model weeks come from the account's usage, asked with the session's own login | accepted | 2026-10-05 |
-| [ADR-0012](0012-readme-mods-section-rendered-from-the-catalog.md) | The README's mods section is rendered from the catalog | accepted | 2026-10-05 |
+| [ADR-0012](0012-readme-mods-section-rendered-from-the-catalog.md) | The README's mods section is rendered from the catalog | superseded by ADR-0013 | 2026-10-05 |
+| [ADR-0013](0013-readme-for-users-one-guide-per-mod.md) | The README is for users, one install guide per mod; development is in CONTRIBUTING.md | accepted | 2026-10-05 |

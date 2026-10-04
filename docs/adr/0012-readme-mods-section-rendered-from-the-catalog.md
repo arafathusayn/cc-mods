@@ -2,7 +2,7 @@
 title: "ADR-0012: The README's mods section is rendered from the catalog"
 type: adr
 id: ADR-0012
-status: accepted
+status: superseded
 decided: 2026-10-05
 valid_from: 2026-10-05
 recorded_at: 2026-10-05
@@ -10,7 +10,8 @@ recorded_at: 2026-10-05
 
 # ADR-0012: The README's mods section is rendered from the catalog
 
-**Status:** accepted. Live since [ebe95f4](https://github.com/arafathusayn/cc-mods/commit/ebe95f4).
+**Status:** superseded by [ADR-0013](0013-readme-for-users-one-guide-per-mod.md). Live since
+[ebe95f4](https://github.com/arafathusayn/cc-mods/commit/ebe95f4).
 
 ## Context
 
