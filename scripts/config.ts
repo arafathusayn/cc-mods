@@ -45,7 +45,7 @@ export type Publisher = {
 export const PUBLISHER: Publisher = {
   author: { name: 'Arafat Husayn', url: 'https://github.com/arafathusayn' },
   repository: { slug: 'arafathusayn/cc-mods', url: 'https://github.com/arafathusayn/cc-mods' },
-  license: 'MIT',
+  license: 'AGPL-3.0-only',
 }
 
 /**

@@ -66,4 +66,5 @@ claude plugin tag mods/<mod> --push
 
 ## License
 
-MIT
+[GNU Affero General Public License v3.0 only](LICENSE) (`AGPL-3.0-only`), for the repository
+and every mod in it.

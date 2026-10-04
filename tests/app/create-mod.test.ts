@@ -78,6 +78,7 @@ describe('createMod', () => {
     expect(JSON.parse(fs.files.get('/repo/mods/token-meter/.claude-plugin/plugin.json') ?? '')).toMatchObject({
       name: 'token-meter',
       version: '0.1.0',
+      license: 'AGPL-3.0-only',
     })
     expect(JSON.parse(fs.files.get(layout.marketplaceFile) ?? '').plugins).toEqual([
       { name: 'token-meter', source: 'token-meter', description: 'Shows token use' },
