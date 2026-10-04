@@ -5,7 +5,7 @@
     "url": "https://github.com/arafathusayn"
   },
   "metadata": {
-    "description": "Claude Code mods by Arafat Husayn: panes, bands, commands and tool-call rules written as function hooks.",
+    "description": "Tune Claude Code from the inside: live meters above the prompt, panes beside the chat and new slash commands, each installed in two commands.",
     "pluginRoot": "./mods"
   },
   "plugins": [
