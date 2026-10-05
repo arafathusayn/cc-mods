@@ -17,12 +17,8 @@ Each mod installs in two commands and runs right inside your session.
 ## Before you install
 
 [Mods](https://code.claude.com/docs/en/plugins/mods/overview) are Claude Code plugins that hook
-into the session itself.
-
-- **They need Claude Code v2.1.287 or later.** Check with `claude --version`; update with
-  `claude update`.
-- **Every mod is open to read.** Its source is in [`mods/`](mods), and `claude plugin validate`
-  on its folder lists each event it hooks and each call it makes.
+into the session itself. They need Claude Code v2.1.287 or later: check with `claude --version`,
+update with `claude update`.
 
 ## Mods
 
