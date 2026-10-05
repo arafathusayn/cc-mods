@@ -2,7 +2,7 @@
 title: "ADR-0014: Each mod's README guide leads with install and folds update and remove away"
 type: adr
 id: ADR-0014
-status: accepted
+status: superseded
 decided: 2026-10-05
 valid_from: 2026-10-05
 recorded_at: 2026-10-05
@@ -10,7 +10,9 @@ recorded_at: 2026-10-05
 
 # ADR-0014: Each mod's README guide leads with install and folds update and remove away
 
-**Status:** accepted. Supersedes [ADR-0013](0013-readme-for-users-one-guide-per-mod.md).
+**Status:** superseded by [ADR-0016](0016-readme-before-you-install-one-paragraph.md). Supersedes
+[ADR-0013](0013-readme-for-users-one-guide-per-mod.md). Live since
+[fd0e9f1](https://github.com/arafathusayn/cc-mods/commit/fd0e9f1).
 
 ## Context
 

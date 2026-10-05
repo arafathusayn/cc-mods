@@ -27,5 +27,6 @@ decision gets a new record that supersedes the old one, linked both ways
 | [ADR-0011](0011-model-weeks-from-the-account-usage.md) | Model weeks come from the account's usage, asked with the session's own login | accepted | 2026-10-05 |
 | [ADR-0012](0012-readme-mods-section-rendered-from-the-catalog.md) | The README's mods section is rendered from the catalog | superseded by ADR-0013 | 2026-10-05 |
 | [ADR-0013](0013-readme-for-users-one-guide-per-mod.md) | The README is for users, one install guide per mod; development is in CONTRIBUTING.md | superseded by ADR-0014 | 2026-10-05 |
-| [ADR-0014](0014-readme-guides-fold-update-and-remove.md) | Each mod's README guide leads with install and folds update and remove away | accepted | 2026-10-05 |
+| [ADR-0014](0014-readme-guides-fold-update-and-remove.md) | Each mod's README guide leads with install and folds update and remove away | superseded by ADR-0016 | 2026-10-05 |
 | [ADR-0015](0015-gate-load-limit-from-the-environment.md) | The check gate's load limit is a share of the cores, set by CC_MODS_GATE_LOAD_PERCENT | accepted | 2026-10-05 |
+| [ADR-0016](0016-readme-before-you-install-one-paragraph.md) | The README's "Before you install" is one paragraph on the Claude Code version | accepted | 2026-10-05 |

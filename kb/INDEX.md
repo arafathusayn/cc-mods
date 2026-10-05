@@ -4,7 +4,7 @@
 
 | Chain | What it records | Nodes | Head |
 |---|---|---|---|
-| [history](chains/history/) | verified milestones of the repository | 12 | [history/012](chains/history/2026-10-05T0600--012--gate-load-limit.md) |
+| [history](chains/history/) | verified milestones of the repository | 13 | [history/013](chains/history/2026-10-05T0614--013--readme-one-paragraph.md) |
 
 ## history
 
@@ -22,6 +22,7 @@
 | [010](chains/history/2026-10-05T0540--010--readme-for-users.md) | 2026-10-05 05:40 | The README, a page for people installing mods | ADR-0013 | d7f99de 2e2549d f8d0cfa |
 | [011](chains/history/2026-10-05T0559--011--readme-guides-folded.md) | 2026-10-05 05:59 | README guides lead with install | ADR-0014 | fd0e9f1 |
 | [012](chains/history/2026-10-05T0600--012--gate-load-limit.md) | 2026-10-05 06:00 | The check gate's load limit from the environment | ADR-0015 | 978e77a |
+| [013](chains/history/2026-10-05T0614--013--readme-one-paragraph.md) | 2026-10-05 06:14 | "Before you install" in one paragraph | ADR-0016 | dcaa8ed |
 
 ## Graph
 
@@ -47,6 +48,7 @@ flowchart LR
     A13["ADR-0013<br>README for users"]:::blue
     A14["ADR-0014<br>guides fold update"]:::blue
     A15["ADR-0015<br>gate load limit"]:::blue
+    A16["ADR-0016<br>one paragraph"]:::blue
   end
   subgraph history ["history chain"]
     H1["001 bootstrap"]:::green --> H2["002 standards"]:::green
@@ -60,6 +62,7 @@ flowchart LR
     H9 --> H10["010 README for users"]:::green
     H10 --> H11["011 README guides"]:::green
     H11 --> H12["012 gate load limit"]:::green
+    H12 --> H13["013 one paragraph"]:::green
   end
   P1 -.-> H1
   A1 -.-> H1
@@ -83,6 +86,8 @@ flowchart LR
   A14 -.->|"supersedes"| A13
   A15 -.-> H12
   A15 -.->|"supersedes"| A9
+  A16 -.-> H13
+  A16 -.->|"supersedes"| A14
   classDef green fill:#dcfce7,stroke:#16a34a,color:#14532d
   classDef blue fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
   classDef purple fill:#f3e8ff,stroke:#9333ea,color:#581c87
