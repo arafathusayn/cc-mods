@@ -4,7 +4,7 @@
 
 | Chain | What it records | Nodes | Head |
 |---|---|---|---|
-| [history](chains/history/) | verified milestones of the repository | 10 | [history/010](chains/history/2026-10-05T0540--010--readme-for-users.md) |
+| [history](chains/history/) | verified milestones of the repository | 12 | [history/012](chains/history/2026-10-05T0600--012--gate-load-limit.md) |
 
 ## history
 
@@ -20,6 +20,8 @@
 | [008](chains/history/2026-10-05T0445--008--usage-meter.md) | 2026-10-05 04:45 | The first mod: usage-meter | PDR-0003, ADR-0010, ADR-0011 | 11c48eb 6a1c90f f069555 eaf0a21 |
 | [009](chains/history/2026-10-05T0525--009--readme-install-guides.md) | 2026-10-05 05:25 | Install guides in the README, rendered from the catalog | ADR-0012 | ebe95f4 |
 | [010](chains/history/2026-10-05T0540--010--readme-for-users.md) | 2026-10-05 05:40 | The README, a page for people installing mods | ADR-0013 | d7f99de 2e2549d f8d0cfa |
+| [011](chains/history/2026-10-05T0559--011--readme-guides-folded.md) | 2026-10-05 05:59 | README guides lead with install | ADR-0014 | fd0e9f1 |
+| [012](chains/history/2026-10-05T0600--012--gate-load-limit.md) | 2026-10-05 06:00 | The check gate's load limit from the environment | ADR-0015 | 978e77a |
 
 ## Graph
 
@@ -43,6 +45,8 @@ flowchart LR
     A11["ADR-0011<br>model weeks"]:::blue
     A12["ADR-0012<br>README from catalog"]:::blue
     A13["ADR-0013<br>README for users"]:::blue
+    A14["ADR-0014<br>guides fold update"]:::blue
+    A15["ADR-0015<br>gate load limit"]:::blue
   end
   subgraph history ["history chain"]
     H1["001 bootstrap"]:::green --> H2["002 standards"]:::green
@@ -54,6 +58,8 @@ flowchart LR
     H7 --> H8["008 usage-meter"]:::green
     H8 --> H9["009 README guides"]:::green
     H9 --> H10["010 README for users"]:::green
+    H10 --> H11["011 README guides"]:::green
+    H11 --> H12["012 gate load limit"]:::green
   end
   P1 -.-> H1
   A1 -.-> H1
@@ -73,6 +79,10 @@ flowchart LR
   A12 -.-> H9
   A13 -.-> H10
   A13 -.->|"supersedes"| A12
+  A14 -.-> H11
+  A14 -.->|"supersedes"| A13
+  A15 -.-> H12
+  A15 -.->|"supersedes"| A9
   classDef green fill:#dcfce7,stroke:#16a34a,color:#14532d
   classDef blue fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
   classDef purple fill:#f3e8ff,stroke:#9333ea,color:#581c87
